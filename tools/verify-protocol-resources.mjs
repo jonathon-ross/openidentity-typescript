@@ -9,23 +9,32 @@ const directory = resolve(root, "protocol", "v0.1.1");
 const resources = [
   {
     resource: "identity-id-v0.1.json",
-    checksum: "identity-id-v0.1.sha256",
+    publishedSha256: "d417d4c68233df46535fabeaebb6f31af8d34e62b2c3b587d24c11bed56378f4",
   },
   {
     resource: "state-hash-v0.1.json",
-    checksum: "state-hash-v0.1.json.sha256",
+    publishedSha256: "6de35a98941f6aff846cd662ccd796473f8f22c5c891ce3589e9a593588bf937",
   },
 ];
 
-for (const { resource, checksum } of resources) {
+for (const { resource, publishedSha256 } of resources) {
   const bytes = readFileSync(resolve(directory, resource));
-  const published = readFileSync(resolve(directory, checksum), "utf8").trim();
-  const expected = published.split(/\s+/u)[0];
-  const actual = createHash("sha256").update(bytes).digest("hex");
+  const candidates = [bytes];
 
-  if (actual !== expected) {
+  // Git checkouts may materialize text files with CRLF on Windows. The
+  // protocol digest is over the published LF bytes, so verify both the
+  // checkout bytes and their LF-normalized representation without
+  // modifying the frozen resource.
+  const lfNormalized = Buffer.from(bytes.toString("utf8").replaceAll("\r\n", "\n"), "utf8");
+  if (!bytes.equals(lfNormalized)) candidates.push(lfNormalized);
+
+  const matched = candidates.some(
+    (candidate) => createHash("sha256").update(candidate).digest("hex") === publishedSha256,
+  );
+
+  if (!matched) {
     throw new Error(`Protocol resource checksum mismatch: ${resource}`);
   }
 
-  console.log(`PASS ${resource} ${actual}`);
+  console.log(`PASS ${resource} ${publishedSha256}`);
 }
