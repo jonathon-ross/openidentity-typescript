@@ -1,10 +1,5 @@
 export type CborValue =
-  | bigint
-  | Uint8Array
-  | string
-  | null
-  | readonly CborValue[]
-  | ReadonlyMap<CborValue, CborValue>;
+  bigint | Uint8Array | string | null | readonly CborValue[] | ReadonlyMap<CborValue, CborValue>;
 
 const textEncoder = new TextEncoder();
 const textDecoder = new TextDecoder("utf-8", { fatal: true });

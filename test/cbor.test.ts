@@ -20,7 +20,9 @@ describe("deterministic CBOR profile", () => {
       [1n, 2n],
       [24n, 3n],
     ]);
-    expect(encodeDeterministic(value)).toEqual(bytes(0xa3, 0x01, 0x02, 0x20, 0x01, 0x18, 0x18, 0x03));
+    expect(encodeDeterministic(value)).toEqual(
+      bytes(0xa3, 0x01, 0x02, 0x20, 0x01, 0x18, 0x18, 0x03),
+    );
   });
 
   it("round-trips permitted primitives", () => {
