@@ -112,5 +112,4 @@ describe("Protocol v0.1.1 W3C credential projection", () => {
       throw error;
     }
   });
-
 });
