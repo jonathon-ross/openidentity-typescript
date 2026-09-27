@@ -180,7 +180,7 @@ export function encodeRotateControllerOperation(operation: RotateControllerOpera
 
 export function decodeOperation(operationBytes: Uint8Array): OpenIdentityOperation {
   const root = map(decodeDeterministic(operationBytes));
-  const required = [1n, 2n, 3n, 4n, 5n, 6n] as const;
+  const required: readonly bigint[] = [1n, 2n, 3n, 4n, 5n, 6n];
   for (const key of root.keys()) {
     if (typeof key !== "bigint" || !required.includes(key)) {
       throw new OpenIdentityValidationError("UNSUPPORTED_PROTOCOL_FEATURE");
