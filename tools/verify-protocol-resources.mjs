@@ -35,6 +35,10 @@ const resources = [
     resource: "credential-v0.1.json",
     publishedSha256: "11642669f5588620e55fdefed85b807878d23cf9b607c59ed230d0cd38ad47ae",
   },
+  {
+    resource: "w3c-credential-projection-v0.1.json",
+    publishedSha256: "2730f3cb4b8598cea65ecfa7102de1c95c2e32302fa26b3285f6f58fefb0588e",
+  },
 ];
 
 for (const { resource, publishedSha256 } of resources) {
