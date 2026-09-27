@@ -1,8 +1,21 @@
 import { decodeDeterministic, encodeDeterministic } from "./cbor.js";
 import type { CborValue } from "./cbor.js";
 import { IdentityId } from "./identity-id.js";
+import { StateHash } from "./state-hash.js";
+import { VerificationMethodId } from "./verification-method-id.js";
 import type { AuthorityPolicy } from "./model.js";
 import { decodeAuthorityPolicy, encodeAuthorityPolicy } from "./state-codec.js";
+
+export interface RotateControllerOperation {
+  readonly protocolVersion: 1;
+  readonly operationType: 2;
+  readonly identity: IdentityId;
+  readonly sequence: bigint;
+  readonly previousStateHash: StateHash;
+  readonly controllerPolicy: AuthorityPolicy;
+}
+
+export type OpenIdentityOperation = CreateOperation | RotateControllerOperation;
 
 export interface CreateOperation {
   readonly protocolVersion: 1;
@@ -82,4 +95,73 @@ export function encodeCreateOperation(operation: CreateOperation): Uint8Array {
 
 export function encodeOperationSigningInput(operationBytes: Uint8Array): Uint8Array {
   return encodeDeterministic(["OpenIdentity Operation", 1n, operationBytes]);
+}
+
+export function decodeRotateControllerOperation(
+  operationBytes: Uint8Array,
+): RotateControllerOperation {
+  const operation = map(decodeDeterministic(operationBytes));
+  requireKeys(operation, [1n, 2n, 3n, 4n, 5n, 6n]);
+
+  if (integer(operation.get(1n)) !== 1n) throw new RangeError("Unsupported protocol version");
+  if (integer(operation.get(2n)) !== 2n) throw new RangeError("Operation is not ROTATE_CONTROLLER");
+  const sequence = integer(operation.get(4n));
+  if (sequence < 2n) throw new RangeError("INVALID_SEQUENCE");
+
+  const payload = map(operation.get(6n) ?? null);
+  requireKeys(payload, [1n]);
+
+  return {
+    protocolVersion: 1,
+    operationType: 2,
+    identity: new IdentityId(bytes(operation.get(3n))),
+    sequence,
+    previousStateHash: new StateHash(bytes(operation.get(5n))),
+    controllerPolicy: decodeAuthorityPolicy(payload.get(1n) ?? null),
+  };
+}
+
+export function encodeRotateControllerOperation(operation: RotateControllerOperation): Uint8Array {
+  if (operation.sequence < 2n) throw new RangeError("INVALID_SEQUENCE");
+  return encodeDeterministic(
+    new Map<CborValue, CborValue>([
+      [1n, 1n],
+      [2n, 2n],
+      [3n, operation.identity.bytes()],
+      [4n, operation.sequence],
+      [5n, operation.previousStateHash.bytes()],
+      [
+        6n,
+        new Map<CborValue, CborValue>([
+          [1n, encodeAuthorityPolicy(operation.controllerPolicy)],
+        ]),
+      ],
+    ]),
+  );
+}
+
+export function decodeOperation(operationBytes: Uint8Array): OpenIdentityOperation {
+  const root = map(decodeDeterministic(operationBytes));
+  const type = integer(root.get(2n));
+  if (type === 1n) return decodeCreateOperation(operationBytes);
+  if (type === 2n) return decodeRotateControllerOperation(operationBytes);
+  throw new RangeError("Unsupported operation type");
+}
+
+export function encodeOperation(operation: OpenIdentityOperation): Uint8Array {
+  return operation.operationType === 1
+    ? encodeCreateOperation(operation)
+    : encodeRotateControllerOperation(operation);
+}
+
+export function encodeControllerProofSigningInput(
+  operationBytes: Uint8Array,
+  methodId: VerificationMethodId,
+): Uint8Array {
+  return encodeDeterministic([
+    "OpenIdentity Controller Proof",
+    1n,
+    operationBytes,
+    methodId.bytes(),
+  ]);
 }
