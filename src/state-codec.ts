@@ -18,7 +18,8 @@ function map(value: CborValue): ReadonlyMap<CborValue, CborValue> {
 
 function array(value: CborValue): readonly CborValue[] {
   if (!Array.isArray(value)) throw new RangeError("Expected CBOR array");
-  return value;
+  const items: readonly CborValue[] = value;
+  return items;
 }
 
 function integer(value: CborValue | undefined): bigint {
