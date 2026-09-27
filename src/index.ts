@@ -26,3 +26,9 @@ export {
   encodeRotateControllerOperation,
 } from "./operation.js";
 export type { OpenIdentityOperation, RotateControllerOperation } from "./operation.js";
+export {
+  decodeSetAssertionPolicyOperation,
+  encodeSetAssertionPolicyOperation,
+} from "./operation.js";
+export type { SetAssertionPolicyOperation } from "./operation.js";
+export { applySetAssertionPolicy } from "./transitions.js";
