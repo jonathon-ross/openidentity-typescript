@@ -24,11 +24,12 @@ describe("deterministic CBOR profile", () => {
   });
 
   it("round-trips permitted primitives", () => {
-    const value = new Map([
+    const entries: ReadonlyArray<readonly [CborValue, CborValue]> = [
       [1n, bytes(1, 2, 3)],
       [2n, "OpenIdentity"],
       [3n, [1n, null, -7n]],
-    ]);
+    ];
+    const value = new Map<CborValue, CborValue>(entries);
     expect(encodeDeterministic(decodeDeterministic(encodeDeterministic(value)))).toEqual(
       encodeDeterministic(value),
     );
