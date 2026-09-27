@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { decodeDeterministic, encodeDeterministic } from "../src/cbor.js";
+import type { CborValue } from "../src/cbor.js";
 
 function bytes(...values: number[]): Uint8Array {
   return Uint8Array.of(...values);
@@ -14,7 +15,7 @@ describe("deterministic CBOR profile", () => {
   });
 
   it("orders map keys by deterministic encoded-key ordering", () => {
-    const value = new Map([
+    const value = new Map<CborValue, CborValue>([
       [-1n, 1n],
       [1n, 2n],
       [24n, 3n],
