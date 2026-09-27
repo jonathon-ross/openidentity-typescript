@@ -1,5 +1,11 @@
 export type CborValue =
-  bigint | Uint8Array | string | null | readonly CborValue[] | ReadonlyMap<CborValue, CborValue>;
+  | bigint
+  | Uint8Array
+  | string
+  | boolean
+  | null
+  | readonly CborValue[]
+  | ReadonlyMap<CborValue, CborValue>;
 
 const textEncoder = new TextEncoder();
 const textDecoder = new TextDecoder("utf-8", { fatal: true });
@@ -52,6 +58,8 @@ export function encodeDeterministic(value: CborValue): Uint8Array {
   if (typeof value === "bigint") {
     return value >= 0n ? head(0, value) : head(1, -1n - value);
   }
+  if (value === false) return Uint8Array.of(0xf4);
+  if (value === true) return Uint8Array.of(0xf5);
   if (value === null) return Uint8Array.of(0xf6);
   if (value instanceof Uint8Array) return concat([head(2, BigInt(value.length)), value]);
   if (typeof value === "string") {
@@ -97,6 +105,8 @@ class Reader {
     const additional = initial & 0x1f;
     if (additional === 31) throw new RangeError("Indefinite-length CBOR is prohibited");
     if (major === 7) {
+      if (initial === 0xf4) return false;
+      if (initial === 0xf5) return true;
       if (initial === 0xf6) return null;
       throw new RangeError("Unsupported CBOR simple/float value");
     }
