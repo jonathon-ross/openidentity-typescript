@@ -132,9 +132,7 @@ export function encodeRotateControllerOperation(operation: RotateControllerOpera
       [5n, operation.previousStateHash.bytes()],
       [
         6n,
-        new Map<CborValue, CborValue>([
-          [1n, encodeAuthorityPolicy(operation.controllerPolicy)],
-        ]),
+        new Map<CborValue, CborValue>([[1n, encodeAuthorityPolicy(operation.controllerPolicy)]]),
       ],
     ]),
   );
