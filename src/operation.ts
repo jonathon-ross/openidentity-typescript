@@ -4,6 +4,8 @@ import { IdentityId } from "./identity-id.js";
 import { StateHash } from "./state-hash.js";
 import { VerificationMethodId } from "./verification-method-id.js";
 import type { AuthorityPolicy } from "./model.js";
+import type { RecoveryPolicy } from "./recovery.js";
+import { decodeRecoveryPolicy, encodeRecoveryPolicy } from "./recovery.js";
 import { decodeAuthorityPolicy, encodeAuthorityPolicy } from "./state-codec.js";
 
 export interface RotateControllerOperation {
@@ -13,6 +15,17 @@ export interface RotateControllerOperation {
   readonly sequence: bigint;
   readonly previousStateHash: StateHash;
   readonly controllerPolicy: AuthorityPolicy;
+}
+
+export interface RecoverOperation {
+  readonly protocolVersion: 1;
+  readonly operationType: 3;
+  readonly identity: IdentityId;
+  readonly sequence: bigint;
+  readonly previousStateHash: StateHash;
+  readonly controllerPolicy: AuthorityPolicy;
+  readonly currentRecoveryPolicy: RecoveryPolicy;
+  readonly newRecoveryCommitment: StateHash;
 }
 
 export interface DeactivateOperation {
@@ -161,6 +174,7 @@ export function decodeOperation(operationBytes: Uint8Array): OpenIdentityOperati
   const type = integer(root.get(2n));
   if (type === 1n) return decodeCreateOperation(operationBytes);
   if (type === 2n) return decodeRotateControllerOperation(operationBytes);
+  if (type === 3n) return decodeRecoverOperation(operationBytes);
   if (type === 4n) return decodeDeactivateOperation(operationBytes);
   if (type === 5n) return decodeSetAssertionPolicyOperation(operationBytes);
   throw new RangeError("Unsupported operation type");
@@ -172,6 +186,8 @@ export function encodeOperation(operation: OpenIdentityOperation): Uint8Array {
       return encodeCreateOperation(operation);
     case 2:
       return encodeRotateControllerOperation(operation);
+    case 3:
+      return encodeRecoverOperation(operation);
     case 4:
       return encodeDeactivateOperation(operation);
     case 5:
@@ -262,4 +278,54 @@ export function encodeDeactivateOperation(operation: DeactivateOperation): Uint8
       [6n, new Map<CborValue, CborValue>()],
     ]),
   );
+}
+
+export function decodeRecoverOperation(operationBytes: Uint8Array): RecoverOperation {
+  const operation = map(decodeDeterministic(operationBytes));
+  requireKeys(operation, [1n, 2n, 3n, 4n, 5n, 6n]);
+  if (integer(operation.get(1n)) !== 1n) throw new RangeError("Unsupported protocol version");
+  if (integer(operation.get(2n)) !== 3n) throw new RangeError("Operation is not RECOVER");
+  const sequence = integer(operation.get(4n));
+  if (sequence < 2n) throw new RangeError("INVALID_SEQUENCE");
+  const payload = map(operation.get(6n) ?? null);
+  requireKeys(payload, [1n, 2n, 3n]);
+  return {
+    protocolVersion: 1,
+    operationType: 3,
+    identity: new IdentityId(bytes(operation.get(3n))),
+    sequence,
+    previousStateHash: new StateHash(bytes(operation.get(5n))),
+    controllerPolicy: decodeAuthorityPolicy(payload.get(1n) ?? null),
+    currentRecoveryPolicy: decodeRecoveryPolicy(payload.get(2n) ?? null),
+    newRecoveryCommitment: new StateHash(bytes(payload.get(3n))),
+  };
+}
+
+export function encodeRecoverOperation(operation: RecoverOperation): Uint8Array {
+  if (operation.sequence < 2n) throw new RangeError("INVALID_SEQUENCE");
+  const recoveryPolicyBytes = encodeRecoveryPolicy(operation.currentRecoveryPolicy);
+  return encodeDeterministic(
+    new Map<CborValue, CborValue>([
+      [1n, 1n],
+      [2n, 3n],
+      [3n, operation.identity.bytes()],
+      [4n, operation.sequence],
+      [5n, operation.previousStateHash.bytes()],
+      [
+        6n,
+        new Map<CborValue, CborValue>([
+          [1n, encodeAuthorityPolicy(operation.controllerPolicy)],
+          [2n, decodeDeterministic(recoveryPolicyBytes)],
+          [3n, operation.newRecoveryCommitment.bytes()],
+        ]),
+      ],
+    ]),
+  );
+}
+
+export function encodeRecoverySigningInput(
+  operationBytes: Uint8Array,
+  methodId: VerificationMethodId,
+): Uint8Array {
+  return encodeDeterministic(["OpenIdentity Recovery", 1n, operationBytes, methodId.bytes()]);
 }
