@@ -75,8 +75,9 @@ function claim(value: CborValue): ClaimValue {
     return items.map(claim);
   }
   if (value instanceof Map) {
+    const entries: ReadonlyMap<CborValue, CborValue> = value;
     const result = new Map<string, ClaimValue>();
-    for (const [key, item] of value) {
+    for (const [key, item] of entries) {
       if (typeof key !== "string" || key.length === 0) throw new RangeError("Invalid claim key");
       result.set(key, claim(item));
     }
@@ -96,7 +97,10 @@ function encodeClaim(value: ClaimValue): CborValue {
       [...value.entries()].map(([key, item]) => [key, encodeClaim(item)]),
     );
   }
-  if (Array.isArray(value)) return value.map(encodeClaim);
+  if (Array.isArray(value)) {
+    const items: readonly ClaimValue[] = value;
+    return items.map(encodeClaim);
+  }
   return value;
 }
 
