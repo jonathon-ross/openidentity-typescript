@@ -93,4 +93,24 @@ describe("Protocol v0.1.1 W3C credential projection", () => {
       }
     });
   }
+  const historicalSubstitution = projections.invalidVectors.find(
+    (candidate) => candidate.id === "WPI10",
+  );
+  if (historicalSubstitution === undefined) throw new Error("Missing WPI10");
+  it("WPI10 rejects current-state substitution for historical assertion authority", () => {
+    const stateHex = historicalSubstitution.substitutedCurrentIdentityStateHex;
+    if (stateHex === undefined) throw new Error("Missing substituted current state");
+    const substituted = decodeIdentityState(Uint8Array.from(Buffer.from(stateHex, "hex")));
+    try {
+      validateW3cCredentialProjection(historicalSubstitution.w3cCredential, substituted);
+      throw new Error("Expected " + historicalSubstitution.expectedError);
+    } catch (error) {
+      if (error instanceof ProjectionException) {
+        expect(error.code).toBe(historicalSubstitution.expectedError);
+        return;
+      }
+      throw error;
+    }
+  });
+
 });
