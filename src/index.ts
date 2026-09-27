@@ -47,3 +47,5 @@ export { applyRecover } from "./transitions.js";
 export { verifyEd25519 } from "./crypto.js";
 export { decodeSignedOperation, encodeSignedOperation } from "./signed-operation.js";
 export type { SignatureProof, SignedOperation } from "./signed-operation.js";
+export { verifyMlDsa65 } from "./crypto.js";
+export { verifyAuthorityPolicy, verifyRecoveryPolicy } from "./policy-verifier.js";
