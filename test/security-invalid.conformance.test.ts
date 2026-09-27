@@ -58,6 +58,8 @@ describe("frozen invalid recovery security vectors", () => {
     ["RI04", "RI05", "RI06", "RI07", "RI08", "RI09", "RI10"].includes(vector.id),
   );
   for (const vector of selected) {
-    it(vector.id + " rejects with " + vector.expectedError, () => expectCode(vector));
+    it(vector.id + " rejects with " + vector.expectedError, () => {
+      expectCode(vector);
+    });
   }
 });
