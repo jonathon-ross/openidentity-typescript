@@ -16,7 +16,6 @@ interface Vector {
   mutatedSigningInputHex?: string;
   substitutedSignatureHex?: string;
   requiredSigningInputHex?: string;
-  authorizationSignatureHex?: string;
 }
 
 interface Bundle {
