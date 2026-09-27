@@ -31,6 +31,10 @@ const resources = [
     resource: "signature-envelope-v0.1.json",
     publishedSha256: "61ea787161c408332354c3bbc04a3538d9cb568524340408b00afe2c391189b5",
   },
+  {
+    resource: "credential-v0.1.json",
+    publishedSha256: "11642669f5588620e55fdefed85b807878d23cf9b607c59ed230d0cd38ad47ae",
+  },
 ];
 
 for (const { resource, publishedSha256 } of resources) {
