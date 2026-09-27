@@ -2,7 +2,11 @@ import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { decodeIdentityState } from "../src/state-codec.js";
 import { decodeOperation } from "../src/operation.js";
-import { applySetAssertionPolicy } from "../src/transitions.js";
+import {
+  applySetAssertionPolicy,
+  validateStateVersionTransition,
+} from "../src/transitions.js";
+import { validationCode } from "../src/errors.js";
 
 interface Vector {
   id: string;
@@ -31,13 +35,18 @@ describe("remaining frozen assertion-authority invalid vectors", () => {
       const current = decodeIdentityState(
         Uint8Array.from(Buffer.from(vector.previousIdentityStateHex, "hex")),
       );
-      expect(() => {
+      try {
         const operation = decodeOperation(
           Uint8Array.from(Buffer.from(vector.operationBytesHex, "hex")),
         );
         if (operation.operationType !== 5) throw new Error("Expected SET_ASSERTION_POLICY");
         applySetAssertionPolicy(current, operation);
-      }).toThrow();
+        throw new Error("Expected " + vector.expectedError);
+      } catch (error) {
+        expect(validationCode(error) ?? (error instanceof Error ? error.message : undefined)).toBe(
+          vector.expectedError,
+        );
+      }
     });
   }
 
@@ -53,7 +62,8 @@ describe("remaining frozen assertion-authority invalid vectors", () => {
     const invalid = decodeIdentityState(
       Uint8Array.from(Buffer.from(downgrade.invalidResultingIdentityStateHex, "hex")),
     );
-    expect(current.stateVersion).toBe(2);
-    expect(invalid.stateVersion).toBe(1);
+    expect(() => validateStateVersionTransition(current, invalid)).toThrow(
+      downgrade.expectedError,
+    );
   });
 });
