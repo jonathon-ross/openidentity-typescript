@@ -96,7 +96,7 @@ function encodeMethod(method: VerificationMethod): ReadonlyMap<CborValue, CborVa
   ]);
 }
 
-function decodeMethods(value: CborValue): readonly VerificationMethod[] {
+export function decodeVerificationMethods(value: CborValue): readonly VerificationMethod[] {
   const methods = array(value).map(decodeMethod);
   if (methods.length === 0) throw new RangeError("Policy methods must not be empty");
   for (let index = 1; index < methods.length; index += 1) {
@@ -116,14 +116,14 @@ export function decodeAuthorityPolicy(value: CborValue): AuthorityPolicy {
   const type = integer(policy.get(1n));
   if (type === 1n) {
     exactKeys(policy, [1n, 2n]);
-    const methods = decodeMethods(policy.get(2n) ?? null);
+    const methods = decodeVerificationMethods(policy.get(2n) ?? null);
     if (methods.length !== 1) throw new RangeError("SINGLE policy requires exactly one method");
     return { threshold: 1, methods };
   }
   if (type === 2n) {
     exactKeys(policy, [1n, 2n, 3n]);
     const threshold = Number(integer(policy.get(2n)));
-    const methods = decodeMethods(policy.get(3n) ?? null);
+    const methods = decodeVerificationMethods(policy.get(3n) ?? null);
     if (!Number.isSafeInteger(threshold) || threshold < 1 || threshold > methods.length) {
       throw new RangeError("Invalid policy threshold");
     }
