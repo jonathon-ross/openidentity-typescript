@@ -10,7 +10,6 @@ import {
 
 interface CreateVector {
   id: string;
-  description: string;
   operationBytesHex: string;
   signingInputHex: string;
 }
@@ -26,9 +25,18 @@ const bundle = JSON.parse(
   ),
 ) as Bundle;
 
+function operationType(operationBytesHex: string): bigint {
+  const decoded = decodeDeterministic(Uint8Array.from(Buffer.from(operationBytesHex, "hex")));
+  if (!(decoded instanceof Map)) throw new RangeError("Expected operation map");
+  const operation: ReadonlyMap<CborValue, CborValue> = decoded;
+  const type = operation.get(2n);
+  if (typeof type !== "bigint") throw new RangeError("Expected operation type");
+  return type;
+}
+
 describe("Protocol v0.1.1 CREATE operations", () => {
-  for (const vector of bundle.valid.filter((candidate) =>
-    candidate.description.includes("CREATE"),
+  for (const vector of bundle.valid.filter(
+    (candidate) => operationType(candidate.operationBytesHex) === 1n,
   )) {
     it(vector.id + " decodes and re-encodes OperationBytes byte-for-byte", () => {
       const expected = Uint8Array.from(Buffer.from(vector.operationBytesHex, "hex"));
