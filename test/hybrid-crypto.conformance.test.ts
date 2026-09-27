@@ -48,7 +48,9 @@ describe("Protocol v0.1.1 hybrid cryptographic verification", () => {
         verifyMlDsa65(
           key,
           Uint8Array.from(Buffer.from(vector.authorizationSigningInputHex, "hex")),
-          Uint8Array.from(Buffer.from(vector.controllerMlDsa65AuthorizationSignatureHex ?? "", "hex")),
+          Uint8Array.from(
+            Buffer.from(vector.controllerMlDsa65AuthorizationSignatureHex ?? "", "hex"),
+          ),
         ),
       ).toBe(true);
     });
