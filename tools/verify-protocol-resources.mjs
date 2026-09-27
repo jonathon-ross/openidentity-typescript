@@ -27,6 +27,10 @@ const resources = [
     resource: "recovery-v0.1.json",
     publishedSha256: "a3c4020a5b65b05d8440718bc114bd351c21699a2b6f5f57c67b011cfb87090f",
   },
+  {
+    resource: "signature-envelope-v0.1.json",
+    publishedSha256: "61ea787161c408332354c3bbc04a3538d9cb568524340408b00afe2c391189b5",
+  },
 ];
 
 for (const { resource, publishedSha256 } of resources) {
