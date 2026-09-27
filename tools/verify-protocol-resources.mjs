@@ -15,6 +15,10 @@ const resources = [
     resource: "state-hash-v0.1.json",
     publishedSha256: "6de35a98941f6aff846cd662ccd796473f8f22c5c891ce3589e9a593588bf937",
   },
+  {
+    resource: "cryptographic-agility-v0.1.json",
+    publishedSha256: "4b2cc1d19d9c2c31216ce5db541bc59d1651259162d4edf02eceff46b612b577",
+  },
 ];
 
 for (const { resource, publishedSha256 } of resources) {
