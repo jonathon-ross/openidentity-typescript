@@ -33,7 +33,11 @@ export class IdentityId {
   }
 
   static fromDid(candidate: string): IdentityId {
-    if (candidate.startsWith("DID:") || candidate.startsWith("Did:") || candidate.startsWith("dID:")) {
+    if (
+      candidate.startsWith("DID:") ||
+      candidate.startsWith("Did:") ||
+      candidate.startsWith("dID:")
+    ) {
       throw new IdentityIdError("INVALID_DID_PREFIX");
     }
     if (!candidate.startsWith("did:")) throw new IdentityIdError("INVALID_DID_SCHEME");
