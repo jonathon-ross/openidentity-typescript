@@ -111,7 +111,7 @@ function decodeMethods(value: CborValue): readonly VerificationMethod[] {
   return methods;
 }
 
-function decodePolicy(value: CborValue): AuthorityPolicy {
+export function decodeAuthorityPolicy(value: CborValue): AuthorityPolicy {
   const policy = map(value);
   const type = integer(policy.get(1n));
   if (type === 1n) {
@@ -132,7 +132,7 @@ function decodePolicy(value: CborValue): AuthorityPolicy {
   throw new RangeError("Unsupported authority policy type");
 }
 
-function encodePolicy(policy: AuthorityPolicy): ReadonlyMap<CborValue, CborValue> {
+export function encodeAuthorityPolicy(policy: AuthorityPolicy): ReadonlyMap<CborValue, CborValue> {
   if (!Number.isSafeInteger(policy.threshold) || policy.threshold < 1) {
     throw new RangeError("Invalid policy threshold");
   }
@@ -179,7 +179,7 @@ export function decodeIdentityState(stateBytes: Uint8Array): IdentityState {
     identity: new IdentityId(bytes(state.get(2n))),
     sequence: integer(state.get(3n)),
     status: integer(state.get(4n)),
-    controllerPolicy: decodePolicy(state.get(5n) ?? null),
+    controllerPolicy: decodeAuthorityPolicy(state.get(5n) ?? null),
   };
   const recoveryCommitment = state.has(6n) ? bytes(state.get(6n)) : undefined;
 
@@ -189,7 +189,7 @@ export function decodeIdentityState(stateBytes: Uint8Array): IdentityState {
       : { stateVersion: 1, ...common, recoveryCommitment };
   }
   if (version === 2n) {
-    const assertionPolicy = state.has(7n) ? decodePolicy(state.get(7n) ?? null) : undefined;
+    const assertionPolicy = state.has(7n) ? decodeAuthorityPolicy(state.get(7n) ?? null) : undefined;
     return {
       stateVersion: 2,
       ...common,
@@ -206,11 +206,11 @@ export function encodeIdentityState(state: IdentityState): Uint8Array {
     [2n, state.identity.bytes()],
     [3n, state.sequence],
     [4n, state.status],
-    [5n, encodePolicy(state.controllerPolicy)],
+    [5n, encodeAuthorityPolicy(state.controllerPolicy)],
   ]);
   if (state.recoveryCommitment !== undefined) fields.set(6n, state.recoveryCommitment);
   if (state.stateVersion === 2 && state.assertionPolicy !== undefined) {
-    fields.set(7n, encodePolicy(state.assertionPolicy));
+    fields.set(7n, encodeAuthorityPolicy(state.assertionPolicy));
   }
   return encodeDeterministic(fields);
 }
