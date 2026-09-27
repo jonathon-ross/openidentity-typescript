@@ -15,7 +15,19 @@ export interface RotateControllerOperation {
   readonly controllerPolicy: AuthorityPolicy;
 }
 
-export type OpenIdentityOperation = CreateOperation | RotateControllerOperation;
+export interface SetAssertionPolicyOperation {
+  readonly protocolVersion: 1;
+  readonly operationType: 5;
+  readonly identity: IdentityId;
+  readonly sequence: bigint;
+  readonly previousStateHash: StateHash;
+  readonly assertionPolicy: AuthorityPolicy | null;
+}
+
+export type OpenIdentityOperation =
+  | CreateOperation
+  | RotateControllerOperation
+  | SetAssertionPolicyOperation;
 
 export interface CreateOperation {
   readonly protocolVersion: 1;
@@ -143,13 +155,14 @@ export function decodeOperation(operationBytes: Uint8Array): OpenIdentityOperati
   const type = integer(root.get(2n));
   if (type === 1n) return decodeCreateOperation(operationBytes);
   if (type === 2n) return decodeRotateControllerOperation(operationBytes);
+  if (type === 5n) return decodeSetAssertionPolicyOperation(operationBytes);
   throw new RangeError("Unsupported operation type");
 }
 
 export function encodeOperation(operation: OpenIdentityOperation): Uint8Array {
-  return operation.operationType === 1
-    ? encodeCreateOperation(operation)
-    : encodeRotateControllerOperation(operation);
+  if (operation.operationType === 1) return encodeCreateOperation(operation);
+  if (operation.operationType === 2) return encodeRotateControllerOperation(operation);
+  return encodeSetAssertionPolicyOperation(operation);
 }
 
 export function encodeControllerProofSigningInput(
@@ -162,4 +175,47 @@ export function encodeControllerProofSigningInput(
     operationBytes,
     methodId.bytes(),
   ]);
+}
+
+export function decodeSetAssertionPolicyOperation(
+  operationBytes: Uint8Array,
+): SetAssertionPolicyOperation {
+  const operation = map(decodeDeterministic(operationBytes));
+  requireKeys(operation, [1n, 2n, 3n, 4n, 5n, 6n]);
+  if (integer(operation.get(1n)) !== 1n) throw new RangeError("Unsupported protocol version");
+  if (integer(operation.get(2n)) !== 5n) throw new RangeError("Operation is not SET_ASSERTION_POLICY");
+  const sequence = integer(operation.get(4n));
+  if (sequence < 2n) throw new RangeError("INVALID_SEQUENCE");
+  const payload = map(operation.get(6n) ?? null);
+  requireKeys(payload, [1n]);
+  const policyValue = payload.get(1n);
+  return {
+    protocolVersion: 1,
+    operationType: 5,
+    identity: new IdentityId(bytes(operation.get(3n))),
+    sequence,
+    previousStateHash: new StateHash(bytes(operation.get(5n))),
+    assertionPolicy:
+      policyValue === null ? null : decodeAuthorityPolicy(policyValue ?? null),
+  };
+}
+
+export function encodeSetAssertionPolicyOperation(
+  operation: SetAssertionPolicyOperation,
+): Uint8Array {
+  if (operation.sequence < 2n) throw new RangeError("INVALID_SEQUENCE");
+  const policy: CborValue =
+    operation.assertionPolicy === null
+      ? null
+      : encodeAuthorityPolicy(operation.assertionPolicy);
+  return encodeDeterministic(
+    new Map<CborValue, CborValue>([
+      [1n, 1n],
+      [2n, 5n],
+      [3n, operation.identity.bytes()],
+      [4n, operation.sequence],
+      [5n, operation.previousStateHash.bytes()],
+      [6n, new Map<CborValue, CborValue>([[1n, policy]])],
+    ]),
+  );
 }
