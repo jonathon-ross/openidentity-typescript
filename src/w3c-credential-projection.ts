@@ -138,7 +138,7 @@ export function validateW3cCredentialProjection(
   }
   const actualSubject = projected.credentialSubject;
   const expectedSubject = expected.credentialSubject;
-  if (actualSubject.id !== expectedSubject.id)
+  if (actualSubject["id"] !== expectedSubject["id"])
     throw new ProjectionException("INVALID_PROJECTED_SUBJECT");
   if (!equalJson(actualSubject, expectedSubject))
     throw new ProjectionException("INVALID_PROJECTED_CLAIMS");
