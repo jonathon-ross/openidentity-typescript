@@ -13,13 +13,20 @@ import { verifyEd25519, verifyMlDsa65 } from "./crypto.js";
 import { encodeRecoveryPolicy, recoveryCommitment } from "./recovery.js";
 import { OpenIdentityValidationError } from "./errors.js";
 
-function verifyMethod(method: VerificationMethod, input: Uint8Array, signature: Uint8Array): boolean {
+function verifyMethod(
+  method: VerificationMethod,
+  input: Uint8Array,
+  signature: Uint8Array,
+): boolean {
   return method.key.kind === "Ed25519"
     ? verifyEd25519(method.key, input, signature)
     : verifyMlDsa65(method.key, input, signature);
 }
 
-function proofMap(proofs: readonly SignatureProof[], duplicateCode: "DUPLICATE_PROOF" | "DUPLICATE_RECOVERY_PROOF"): Map<string, SignatureProof> {
+function proofMap(
+  proofs: readonly SignatureProof[],
+  duplicateCode: "DUPLICATE_PROOF" | "DUPLICATE_RECOVERY_PROOF",
+): Map<string, SignatureProof> {
   const result = new Map<string, SignatureProof>();
   for (const proof of proofs) {
     const id = proof.methodId.toHex();
@@ -39,7 +46,8 @@ function verifyAuthority(
   let valid = 0;
   for (const [id, proof] of supplied) {
     const method = authorized.get(id);
-    if (method === undefined) throw new OpenIdentityValidationError("UNAUTHORIZED_VERIFICATION_METHOD");
+    if (method === undefined)
+      throw new OpenIdentityValidationError("UNAUTHORIZED_VERIFICATION_METHOD");
     if (!verifyMethod(method, input, proof.signature)) {
       throw new OpenIdentityValidationError("INVALID_SIGNATURE");
     }
@@ -59,7 +67,13 @@ function verifyPossession(
   for (const method of policy.methods) {
     const proof = supplied.get(method.id.toHex());
     if (proof === undefined) throw new OpenIdentityValidationError("MISSING_PROOF_OF_POSSESSION");
-    if (!verifyMethod(method, encodeControllerProofSigningInput(operationBytes, method.id), proof.signature)) {
+    if (
+      !verifyMethod(
+        method,
+        encodeControllerProofSigningInput(operationBytes, method.id),
+        proof.signature,
+      )
+    ) {
       throw new OpenIdentityValidationError("INVALID_PROOF_OF_POSSESSION");
     }
   }
@@ -110,7 +124,13 @@ export function verifyStatefulSignedOperation(
       if (method === undefined) {
         throw new OpenIdentityValidationError("UNAUTHORIZED_RECOVERY_METHOD");
       }
-      if (!verifyMethod(method, encodeRecoverySigningInput(operationBytes, method.id), proof.signature)) {
+      if (
+        !verifyMethod(
+          method,
+          encodeRecoverySigningInput(operationBytes, method.id),
+          proof.signature,
+        )
+      ) {
         throw new OpenIdentityValidationError("INVALID_RECOVERY_SIGNATURE");
       }
       valid += 1;
