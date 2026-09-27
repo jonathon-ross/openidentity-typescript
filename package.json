@@ -21,7 +21,8 @@
     "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "verify": "npm run format:check && npm run lint && npm run typecheck && npm test && npm run build"
+    "verify": "npm run protocol:verify && npm run format:check && npm run lint && npm run typecheck && npm test && npm run build",
+    "protocol:verify": "node tools/verify-protocol-resources.mjs"
   },
   "engines": {
     "node": ">=22"
