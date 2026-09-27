@@ -19,6 +19,10 @@ const resources = [
     resource: "cryptographic-agility-v0.1.json",
     publishedSha256: "4b2cc1d19d9c2c31216ce5db541bc59d1651259162d4edf02eceff46b612b577",
   },
+  {
+    resource: "assertion-authority-v0.1.json",
+    publishedSha256: "39d9f6c6af8aef469ebf7061de95bfb0ae85db21409c58fe901fd93756ec0d0e",
+  },
 ];
 
 for (const { resource, publishedSha256 } of resources) {
