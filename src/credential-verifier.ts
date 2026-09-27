@@ -48,10 +48,12 @@ export function verifyCredentialAgainstHistoricalState(
     if (seen.has(id)) throw new CredentialVerificationException("DUPLICATE_CREDENTIAL_PROOF");
     seen.add(id);
     const method = authorized.get(id);
-    if (method === undefined) throw new CredentialVerificationException("UNAUTHORIZED_CREDENTIAL_PROOF");
-    const ok = method.key.kind === "Ed25519"
-      ? verifyEd25519(method.key, input, proof.signature)
-      : verifyMlDsa65(method.key, input, proof.signature);
+    if (method === undefined)
+      throw new CredentialVerificationException("UNAUTHORIZED_CREDENTIAL_PROOF");
+    const ok =
+      method.key.kind === "Ed25519"
+        ? verifyEd25519(method.key, input, proof.signature)
+        : verifyMlDsa65(method.key, input, proof.signature);
     if (!ok) throw new CredentialVerificationException("INVALID_CREDENTIAL_SIGNATURE");
     valid += 1;
   }

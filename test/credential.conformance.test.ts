@@ -26,7 +26,10 @@ interface InvalidVector {
   historicalIdentityStateHex: string;
   securedCredentialHex: string;
 }
-interface Bundle { validVectors: ValidVector[]; invalidVectors: InvalidVector[]; }
+interface Bundle {
+  validVectors: ValidVector[];
+  invalidVectors: InvalidVector[];
+}
 
 const bundle = JSON.parse(
   readFileSync(new URL("../protocol/v0.1.1/credential-v0.1.json", import.meta.url), "utf8"),
