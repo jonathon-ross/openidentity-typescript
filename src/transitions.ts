@@ -14,6 +14,10 @@ export function applySetAssertionPolicy(
 ): IdentityStateV2 {
   if (!current.identity.equals(operation.identity)) throw new RangeError("INVALID_IDENTITY");
   if (operation.sequence !== current.sequence + 1n) throw new RangeError("INVALID_SEQUENCE");
+  const currentHash = StateHash.fromStateBytes(encodeIdentityState(current));
+  if (!currentHash.equals(operation.previousStateHash)) {
+    throw new RangeError("INVALID_PREVIOUS_STATE_HASH");
+  }
 
   const common = {
     stateVersion: 2 as const,
