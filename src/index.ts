@@ -49,3 +49,6 @@ export { decodeSignedOperation, encodeSignedOperation } from "./signed-operation
 export type { SignatureProof, SignedOperation } from "./signed-operation.js";
 export { verifyMlDsa65 } from "./crypto.js";
 export { verifyAuthorityPolicy, verifyRecoveryPolicy } from "./policy-verifier.js";
+export { OpenIdentityValidationError } from "./errors.js";
+export type { OpenIdentityErrorCode } from "./errors.js";
+export { verifyStatefulSignedOperation } from "./verifier.js";
