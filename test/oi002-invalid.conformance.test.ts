@@ -25,7 +25,7 @@ const bundle = JSON.parse(
 
 describe("frozen OI-002 invalid vectors", () => {
   for (const vector of bundle.invalid.filter((candidate) =>
-    ["I01", "I02", "I03", "I04", "I05", "I18", "I19", "I20"].includes(candidate.id),
+    ["I01", "I02", "I03", "I04", "I05", "I18", "I19"].includes(candidate.id),
   )) {
     it(vector.id + " rejects structurally", () => {
       try {
@@ -38,6 +38,19 @@ describe("frozen OI-002 invalid vectors", () => {
       }
     });
   }
+
+
+  const supersededRecover = bundle.invalid.find((vector) => vector.id === "I20");
+  if (supersededRecover === undefined) throw new Error("Missing historical I20 vector");
+
+  it("I20 is superseded by OI-007 RECOVER assignment", () => {
+    expect(supersededRecover.expectedError).toBe("UNSUPPORTED_OPERATION");
+    expect(() => {
+      decodeOperation(
+        Uint8Array.from(Buffer.from(supersededRecover.operationBytesHex, "hex")),
+      );
+    }).toThrow("Unexpected CBOR map fields");
+  });
 
   for (const vector of bundle.invalid.filter((candidate) =>
     ["I06", "I07", "I08", "I09", "I10"].includes(candidate.id),
