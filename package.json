@@ -23,7 +23,7 @@
     "format:check": "prettier --check .",
     "verify": "npm run protocol:verify && npm run format:check && npm run lint && npm run typecheck && npm test && npm run build",
     "protocol:verify": "node tools/verify-protocol-resources.mjs",
-    "release:gate": "npm run verify"
+    "release:gate": "npm run verify && node tools/release-gate-pass.mjs"
   },
   "engines": {
     "node": ">=24.15.0"
