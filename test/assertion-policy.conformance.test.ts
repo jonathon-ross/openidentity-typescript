@@ -63,18 +63,18 @@ describe("Protocol v0.1.1 SET_ASSERTION_POLICY", () => {
         vector.assertionEd25519PopSigningInputHex !== undefined
       ) {
         const id = VerificationMethodId.fromHex(vector.assertionEd25519MethodIdHex);
-        expect(Buffer.from(encodeControllerProofSigningInput(operationBytes, id)).toString("hex")).toBe(
-          vector.assertionEd25519PopSigningInputHex,
-        );
+        expect(
+          Buffer.from(encodeControllerProofSigningInput(operationBytes, id)).toString("hex"),
+        ).toBe(vector.assertionEd25519PopSigningInputHex);
       }
       if (
         vector.assertionMlDsa65MethodIdHex !== undefined &&
         vector.assertionMlDsa65PopSigningInputHex !== undefined
       ) {
         const id = VerificationMethodId.fromHex(vector.assertionMlDsa65MethodIdHex);
-        expect(Buffer.from(encodeControllerProofSigningInput(operationBytes, id)).toString("hex")).toBe(
-          vector.assertionMlDsa65PopSigningInputHex,
-        );
+        expect(
+          Buffer.from(encodeControllerProofSigningInput(operationBytes, id)).toString("hex"),
+        ).toBe(vector.assertionMlDsa65PopSigningInputHex);
       }
     });
   }
