@@ -152,3 +152,14 @@ export function verifyStatefulSignedOperation(
     verifyPossession(operation.assertionPolicy, operationBytes, signed.controllerProofs ?? []);
   }
 }
+
+export function verifyCreateSignedOperation(signed: SignedOperation): void {
+  const operation = signed.operation;
+  if (operation.operationType !== 1) throw new RangeError("Expected CREATE");
+  const operationBytes = encodeOperation(operation);
+  verifyAuthority(
+    operation.controllerPolicy,
+    encodeOperationSigningInput(operationBytes),
+    signed.authorizationProofs ?? [],
+  );
+}
