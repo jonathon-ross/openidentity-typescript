@@ -51,7 +51,13 @@ if (input.length === 0) throw new Error("Credential signing-input package surfac
 
   const metadata = packed[0];
   const files = Array.isArray(metadata?.files) ? metadata.files.map((item) => item.path) : [];
-  for (const required of ["package.json", "README.md", "LICENSE", "dist/index.js", "dist/index.d.ts"]) {
+  for (const required of [
+    "package.json",
+    "README.md",
+    "LICENSE",
+    "dist/index.js",
+    "dist/index.d.ts",
+  ]) {
     if (!files.includes(required)) throw new Error("Packed npm artifact missing " + required);
   }
 

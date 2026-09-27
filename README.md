@@ -53,10 +53,7 @@ The verifier does **not** substitute the issuer's current state or ControllerPol
 ## W3C credential projection
 
 ```ts
-import {
-  projectW3cCredential,
-  validateW3cCredentialProjection,
-} from "@openidentity/sdk";
+import { projectW3cCredential, validateW3cCredentialProjection } from "@openidentity/sdk";
 
 const projected = projectW3cCredential(secured);
 validateW3cCredentialProjection(projected, historical);
