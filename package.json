@@ -25,7 +25,7 @@
     "protocol:verify": "node tools/verify-protocol-resources.mjs"
   },
   "engines": {
-    "node": ">=22"
+    "node": ">=24.6.0"
   },
   "license": "Apache-2.0",
   "devDependencies": {
