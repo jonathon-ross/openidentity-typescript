@@ -157,9 +157,23 @@ export function verifyCreateSignedOperation(signed: SignedOperation): void {
   const operation = signed.operation;
   if (operation.operationType !== 1) throw new RangeError("Expected CREATE");
   const operationBytes = encodeOperation(operation);
-  verifyAuthority(
-    operation.controllerPolicy,
-    encodeOperationSigningInput(operationBytes),
-    signed.authorizationProofs ?? [],
+  const input = encodeOperationSigningInput(operationBytes);
+  const proofs = proofMap(signed.authorizationProofs ?? [], "DUPLICATE_PROOF");
+  const authorized = new Map(
+    operation.controllerPolicy.methods.map((method) => [method.id.toHex(), method]),
   );
+  let valid = 0;
+  for (const [id, proof] of proofs) {
+    const method = authorized.get(id);
+    if (method === undefined) {
+      throw new OpenIdentityValidationError("UNAUTHORIZED_VERIFICATION_METHOD");
+    }
+    if (!verifyMethod(method, input, proof.signature)) {
+      throw new OpenIdentityValidationError("INVALID_SIGNATURE");
+    }
+    valid += 1;
+  }
+  if (valid < operation.controllerPolicy.threshold) {
+    throw new OpenIdentityValidationError("CONTROLLER_THRESHOLD_NOT_SATISFIED");
+  }
 }
