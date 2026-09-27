@@ -35,3 +35,16 @@ export { applySetAssertionPolicy } from "./transitions.js";
 export { decodeDeactivateOperation, encodeDeactivateOperation } from "./operation.js";
 export type { DeactivateOperation } from "./operation.js";
 export { applyDeactivate } from "./transitions.js";
+export {
+  decodeRecoverOperation,
+  encodeRecoverOperation,
+  encodeRecoverySigningInput,
+} from "./operation.js";
+export type { RecoverOperation } from "./operation.js";
+export {
+  decodeRecoveryPolicy,
+  encodeRecoveryPolicy,
+  recoveryCommitment,
+} from "./recovery.js";
+export type { RecoveryPolicy } from "./recovery.js";
+export { applyRecover } from "./transitions.js";
