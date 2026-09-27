@@ -15,6 +15,14 @@ export interface RotateControllerOperation {
   readonly controllerPolicy: AuthorityPolicy;
 }
 
+export interface DeactivateOperation {
+  readonly protocolVersion: 1;
+  readonly operationType: 4;
+  readonly identity: IdentityId;
+  readonly sequence: bigint;
+  readonly previousStateHash: StateHash;
+}
+
 export interface SetAssertionPolicyOperation {
   readonly protocolVersion: 1;
   readonly operationType: 5;
@@ -153,6 +161,7 @@ export function decodeOperation(operationBytes: Uint8Array): OpenIdentityOperati
   const type = integer(root.get(2n));
   if (type === 1n) return decodeCreateOperation(operationBytes);
   if (type === 2n) return decodeRotateControllerOperation(operationBytes);
+  if (type === 4n) return decodeDeactivateOperation(operationBytes);
   if (type === 5n) return decodeSetAssertionPolicyOperation(operationBytes);
   throw new RangeError("Unsupported operation type");
 }
@@ -160,6 +169,7 @@ export function decodeOperation(operationBytes: Uint8Array): OpenIdentityOperati
 export function encodeOperation(operation: OpenIdentityOperation): Uint8Array {
   if (operation.operationType === 1) return encodeCreateOperation(operation);
   if (operation.operationType === 2) return encodeRotateControllerOperation(operation);
+  if (operation.operationType === 4) return encodeDeactivateOperation(operation);
   return encodeSetAssertionPolicyOperation(operation);
 }
 
@@ -212,6 +222,38 @@ export function encodeSetAssertionPolicyOperation(
       [4n, operation.sequence],
       [5n, operation.previousStateHash.bytes()],
       [6n, new Map<CborValue, CborValue>([[1n, policy]])],
+    ]),
+  );
+}
+
+export function decodeDeactivateOperation(operationBytes: Uint8Array): DeactivateOperation {
+  const operation = map(decodeDeterministic(operationBytes));
+  requireKeys(operation, [1n, 2n, 3n, 4n, 5n, 6n]);
+  if (integer(operation.get(1n)) !== 1n) throw new RangeError("Unsupported protocol version");
+  if (integer(operation.get(2n)) !== 4n) throw new RangeError("Operation is not DEACTIVATE");
+  const sequence = integer(operation.get(4n));
+  if (sequence < 2n) throw new RangeError("INVALID_SEQUENCE");
+  const payload = map(operation.get(6n) ?? null);
+  if (payload.size !== 0) throw new RangeError("DEACTIVATE payload must be empty");
+  return {
+    protocolVersion: 1,
+    operationType: 4,
+    identity: new IdentityId(bytes(operation.get(3n))),
+    sequence,
+    previousStateHash: new StateHash(bytes(operation.get(5n))),
+  };
+}
+
+export function encodeDeactivateOperation(operation: DeactivateOperation): Uint8Array {
+  if (operation.sequence < 2n) throw new RangeError("INVALID_SEQUENCE");
+  return encodeDeterministic(
+    new Map<CborValue, CborValue>([
+      [1n, 1n],
+      [2n, 4n],
+      [3n, operation.identity.bytes()],
+      [4n, operation.sequence],
+      [5n, operation.previousStateHash.bytes()],
+      [6n, new Map<CborValue, CborValue>()],
     ]),
   );
 }
