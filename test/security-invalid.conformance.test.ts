@@ -47,7 +47,9 @@ describe("frozen invalid assertion-authority security vectors", () => {
     ["AI01", "AI02", "AI03", "AI04", "AI07"].includes(vector.id),
   );
   for (const vector of selected) {
-    it(vector.id + " rejects with " + vector.expectedError, () => expectCode(vector));
+    it(vector.id + " rejects with " + vector.expectedError, () => {
+      expectCode(vector);
+    });
   }
 });
 
