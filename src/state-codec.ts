@@ -189,7 +189,9 @@ export function decodeIdentityState(stateBytes: Uint8Array): IdentityState {
       : { stateVersion: 1, ...common, recoveryCommitment };
   }
   if (version === 2n) {
-    const assertionPolicy = state.has(7n) ? decodeAuthorityPolicy(state.get(7n) ?? null) : undefined;
+    const assertionPolicy = state.has(7n)
+      ? decodeAuthorityPolicy(state.get(7n) ?? null)
+      : undefined;
     return {
       stateVersion: 2,
       ...common,

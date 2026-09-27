@@ -59,9 +59,7 @@ export function decodeCreateOperation(operationBytes: Uint8Array): CreateOperati
     previousStateHash: null,
     controllerPolicy: decodeAuthorityPolicy(payload.get(1n) ?? null),
   };
-  return payload.has(2n)
-    ? { ...base, recoveryCommitment: bytes(payload.get(2n)) }
-    : base;
+  return payload.has(2n) ? { ...base, recoveryCommitment: bytes(payload.get(2n)) } : base;
 }
 
 export function encodeCreateOperation(operation: CreateOperation): Uint8Array {
