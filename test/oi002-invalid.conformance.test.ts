@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import { decodeOperation } from "../src/operation.js";
 import { decodeSignedOperation } from "../src/signed-operation.js";
 import { verifyCreateSignedOperation } from "../src/verifier.js";
+import { validationCode } from "../src/errors.js";
 
 interface Vector {
   id: string;
@@ -27,9 +28,14 @@ describe("frozen OI-002 invalid vectors", () => {
     ["I01", "I02", "I03", "I04", "I05", "I18", "I19", "I20"].includes(candidate.id),
   )) {
     it(vector.id + " rejects structurally", () => {
-      expect(() =>
-        decodeOperation(Uint8Array.from(Buffer.from(vector.operationBytesHex, "hex"))),
-      ).toThrow();
+      try {
+        decodeOperation(Uint8Array.from(Buffer.from(vector.operationBytesHex, "hex")));
+        throw new Error("Expected " + vector.expectedError);
+      } catch (error) {
+        expect(validationCode(error) ?? (error instanceof Error ? error.message : undefined)).toBe(
+          vector.expectedError,
+        );
+      }
     });
   }
 
@@ -39,11 +45,16 @@ describe("frozen OI-002 invalid vectors", () => {
     it(vector.id + " rejects CREATE authorization", () => {
       const signedOperationHex = vector.signedOperationHex;
       if (signedOperationHex === undefined) throw new Error("Missing SignedOperation");
-      expect(() => {
+      try {
         verifyCreateSignedOperation(
           decodeSignedOperation(Uint8Array.from(Buffer.from(signedOperationHex, "hex"))),
         );
-      }).toThrow();
+        throw new Error("Expected " + vector.expectedError);
+      } catch (error) {
+        expect(validationCode(error) ?? (error instanceof Error ? error.message : undefined)).toBe(
+          vector.expectedError,
+        );
+      }
     });
   }
 });
