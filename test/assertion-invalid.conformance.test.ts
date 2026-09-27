@@ -2,10 +2,7 @@ import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { decodeIdentityState } from "../src/state-codec.js";
 import { decodeOperation } from "../src/operation.js";
-import {
-  applySetAssertionPolicy,
-  validateStateVersionTransition,
-} from "../src/transitions.js";
+import { applySetAssertionPolicy, validateStateVersionTransition } from "../src/transitions.js";
 import { validationCode } from "../src/errors.js";
 
 interface Vector {
@@ -62,8 +59,6 @@ describe("remaining frozen assertion-authority invalid vectors", () => {
     const invalid = decodeIdentityState(
       Uint8Array.from(Buffer.from(downgrade.invalidResultingIdentityStateHex, "hex")),
     );
-    expect(() => validateStateVersionTransition(current, invalid)).toThrow(
-      downgrade.expectedError,
-    );
+    expect(() => validateStateVersionTransition(current, invalid)).toThrow(downgrade.expectedError);
   });
 });
