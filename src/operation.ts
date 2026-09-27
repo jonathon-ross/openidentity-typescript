@@ -180,6 +180,16 @@ export function encodeRotateControllerOperation(operation: RotateControllerOpera
 
 export function decodeOperation(operationBytes: Uint8Array): OpenIdentityOperation {
   const root = map(decodeDeterministic(operationBytes));
+  const required = [1n, 2n, 3n, 4n, 5n, 6n] as const;
+  for (const key of root.keys()) {
+    if (typeof key !== "bigint" || !required.includes(key)) {
+      throw new OpenIdentityValidationError("UNSUPPORTED_PROTOCOL_FEATURE");
+    }
+  }
+  for (const key of required) {
+    if (!root.has(key)) throw new RangeError("Missing CBOR map field");
+  }
+
   const type = integer(root.get(2n));
   if (type === 1n) return decodeCreateOperation(operationBytes);
   if (type === 2n) return decodeRotateControllerOperation(operationBytes);
