@@ -1,30 +1,30 @@
 import { execFileSync } from "node:child_process";
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 
 const root = resolve(".");
 const work = mkdtempSync(join(tmpdir(), "openidentity-sdk-smoke-"));
+const npm = process.platform === "win32" ? "npm.cmd" : "npm";
+let tarball;
 
 try {
-  const packJson = execFileSync("npm", ["pack", "--json", "--ignore-scripts"], {
+  const packJson = execFileSync(npm, ["pack", "--json", "--ignore-scripts"], {
     cwd: root,
     encoding: "utf8",
-    shell: process.platform === "win32",
   });
   const packed = JSON.parse(packJson);
   const filename = packed[0]?.filename;
   if (typeof filename !== "string") throw new Error("npm pack did not return a tarball filename");
 
-  const tarball = join(root, filename);
+  tarball = join(root, filename);
   writeFileSync(
     join(work, "package.json"),
     JSON.stringify({ type: "module", private: true }, null, 2) + "\n",
   );
-  execFileSync("npm", ["install", "--ignore-scripts", tarball], {
+  execFileSync(npm, ["install", "--ignore-scripts", tarball], {
     cwd: work,
     stdio: "inherit",
-    shell: process.platform === "win32",
   });
 
   writeFileSync(
@@ -62,7 +62,7 @@ if (input.length === 0) throw new Error("Credential signing-input package surfac
   }
 
   console.log("PACKED NPM CONSUMER SMOKE: PASS");
-  rmSync(tarball, { force: true });
 } finally {
+  if (tarball !== undefined) rmSync(tarball, { force: true });
   rmSync(work, { recursive: true, force: true });
 }
