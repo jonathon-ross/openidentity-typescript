@@ -23,6 +23,10 @@ const resources = [
     resource: "assertion-authority-v0.1.json",
     publishedSha256: "39d9f6c6af8aef469ebf7061de95bfb0ae85db21409c58fe901fd93756ec0d0e",
   },
+  {
+    resource: "recovery-v0.1.json",
+    publishedSha256: "a3c4020a5b65b05d8440718bc114bd351c21699a2b6f5f57c67b011cfb87090f",
+  },
 ];
 
 for (const { resource, publishedSha256 } of resources) {
