@@ -108,7 +108,8 @@ export function decodeSignedOperation(bytesValue: Uint8Array): SignedOperation {
 export function encodeSignedOperation(value: SignedOperation): Uint8Array {
   const operation = decodeDeterministic(encodeOperation(value.operation));
   const root = new Map<CborValue, CborValue>([[1n, operation]]);
-  if (value.authorizationProofs !== undefined) root.set(2n, encodeProofs(value.authorizationProofs));
+  if (value.authorizationProofs !== undefined)
+    root.set(2n, encodeProofs(value.authorizationProofs));
   if (value.controllerProofs !== undefined) root.set(3n, encodeProofs(value.controllerProofs));
   if (value.recoveryProofs !== undefined) root.set(4n, encodeProofs(value.recoveryProofs));
   return encodeDeterministic(root);

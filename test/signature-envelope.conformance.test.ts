@@ -24,10 +24,7 @@ interface Bundle {
 }
 
 const bundle = JSON.parse(
-  readFileSync(
-    new URL("../protocol/v0.1.1/signature-envelope-v0.1.json", import.meta.url),
-    "utf8",
-  ),
+  readFileSync(new URL("../protocol/v0.1.1/signature-envelope-v0.1.json", import.meta.url), "utf8"),
 ) as Bundle;
 
 const se01 = bundle.vectors.find((vector) => vector.id === "SE01");
@@ -45,7 +42,8 @@ describe("Protocol v0.1.1 signature envelope", () => {
       se01.controllerPublicKeyHex === undefined ||
       se01.authorizationSigningInputHex === undefined ||
       se01.authorizationSignatureHex === undefined
-    ) throw new Error("Incomplete SE01");
+    )
+      throw new Error("Incomplete SE01");
     expect(
       verifyEd25519(
         new Ed25519Key(Uint8Array.from(Buffer.from(se01.controllerPublicKeyHex, "hex"))),
@@ -66,7 +64,8 @@ describe("Protocol v0.1.1 signature envelope", () => {
         signatureHex === undefined ||
         inputHex === undefined ||
         se01.controllerPublicKeyHex === undefined
-      ) return;
+      )
+        return;
       expect(
         verifyEd25519(
           new Ed25519Key(Uint8Array.from(Buffer.from(se01.controllerPublicKeyHex, "hex"))),
