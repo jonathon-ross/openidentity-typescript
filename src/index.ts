@@ -52,3 +52,4 @@ export { verifyAuthorityPolicy, verifyRecoveryPolicy } from "./policy-verifier.j
 export { OpenIdentityValidationError } from "./errors.js";
 export type { OpenIdentityErrorCode } from "./errors.js";
 export { verifyStatefulSignedOperation } from "./verifier.js";
+export { verifyCreateSignedOperation } from "./verifier.js";
