@@ -46,7 +46,11 @@ export interface SetAssertionPolicyOperation {
 }
 
 export type OpenIdentityOperation =
-  CreateOperation | RotateControllerOperation | DeactivateOperation | SetAssertionPolicyOperation;
+  | CreateOperation
+  | RotateControllerOperation
+  | RecoverOperation
+  | DeactivateOperation
+  | SetAssertionPolicyOperation;
 
 export interface CreateOperation {
   readonly protocolVersion: 1;
