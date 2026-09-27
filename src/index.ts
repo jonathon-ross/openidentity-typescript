@@ -32,9 +32,6 @@ export {
 } from "./operation.js";
 export type { SetAssertionPolicyOperation } from "./operation.js";
 export { applySetAssertionPolicy } from "./transitions.js";
-export {
-  decodeDeactivateOperation,
-  encodeDeactivateOperation,
-} from "./operation.js";
+export { decodeDeactivateOperation, encodeDeactivateOperation } from "./operation.js";
 export type { DeactivateOperation } from "./operation.js";
 export { applyDeactivate } from "./transitions.js";
