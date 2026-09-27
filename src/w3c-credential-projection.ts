@@ -122,15 +122,6 @@ export function validateW3cCredentialProjection(
   } catch {
     throw new ProjectionException("INVALID_NATIVE_SECURED_CREDENTIAL");
   }
-  if (
-    !secured.credential.issuanceStateHash.equals(
-      historical.stateVersion === 1 || historical.stateVersion === 2
-        ? secured.credential.issuanceStateHash
-        : secured.credential.issuanceStateHash,
-    )
-  )
-    throw new ProjectionException("HISTORICAL_ASSERTION_AUTHORITY_REQUIRED");
-
   const expected = projectW3cCredential(secured);
   if (projected.id !== expected.id)
     throw new ProjectionException("INVALID_PROJECTED_CREDENTIAL_ID");
