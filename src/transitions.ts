@@ -71,7 +71,9 @@ export function applyRecover(current: IdentityState, operation: RecoverOperation
     throw new RangeError("INVALID_PREVIOUS_STATE_HASH");
   }
   if (current.recoveryCommitment === undefined) throw new RangeError("RECOVERY_NOT_CONFIGURED");
-  const revealedCommitment = recoveryCommitment(encodeRecoveryPolicy(operation.currentRecoveryPolicy));
+  const revealedCommitment = recoveryCommitment(
+    encodeRecoveryPolicy(operation.currentRecoveryPolicy),
+  );
   if (!revealedCommitment.equals(new StateHash(current.recoveryCommitment))) {
     throw new RangeError("INVALID_RECOVERY_POLICY");
   }

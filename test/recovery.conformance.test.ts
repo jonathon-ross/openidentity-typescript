@@ -62,9 +62,9 @@ describe("Protocol v0.1.1 RECOVER", () => {
       expect(Buffer.from(encodeRecoverySigningInput(operationBytes, ml)).toString("hex")).toBe(
         vector.recoveryMlDsa65SigningInputHex,
       );
-      expect(Buffer.from(encodeControllerProofSigningInput(operationBytes, controller)).toString("hex")).toBe(
-        vector.newControllerPopSigningInputHex,
-      );
+      expect(
+        Buffer.from(encodeControllerProofSigningInput(operationBytes, controller)).toString("hex"),
+      ).toBe(vector.newControllerPopSigningInputHex);
     });
   }
 });

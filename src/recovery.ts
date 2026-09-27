@@ -51,7 +51,13 @@ export function encodeRecoveryPolicy(policy: RecoveryPolicy): Uint8Array {
       ]),
   );
   if (policy.threshold === 1 && methods.length === 1) {
-    return encodeDeterministic(new Map<CborValue, CborValue>([[1n, 1n], [2n, 1n], [3n, methods]]));
+    return encodeDeterministic(
+      new Map<CborValue, CborValue>([
+        [1n, 1n],
+        [2n, 1n],
+        [3n, methods],
+      ]),
+    );
   }
   if (policy.threshold < 1 || policy.threshold > methods.length) {
     throw new RangeError("INVALID_RECOVERY_THRESHOLD");
@@ -70,11 +76,16 @@ function encodeCoseKey(method: VerificationMethod): CborValue {
   const key = method.key;
   if (key.kind === "Ed25519") {
     return new Map<CborValue, CborValue>([
-      [1n, 1n], [3n, -8n], [-1n, 6n], [-2n, key.publicKey()],
+      [1n, 1n],
+      [3n, -8n],
+      [-1n, 6n],
+      [-2n, key.publicKey()],
     ]);
   }
   return new Map<CborValue, CborValue>([
-    [1n, 7n], [3n, -49n], [-1n, key.publicKey()],
+    [1n, 7n],
+    [3n, -49n],
+    [-1n, key.publicKey()],
   ]);
 }
 

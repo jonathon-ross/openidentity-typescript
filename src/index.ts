@@ -41,10 +41,6 @@ export {
   encodeRecoverySigningInput,
 } from "./operation.js";
 export type { RecoverOperation } from "./operation.js";
-export {
-  decodeRecoveryPolicy,
-  encodeRecoveryPolicy,
-  recoveryCommitment,
-} from "./recovery.js";
+export { decodeRecoveryPolicy, encodeRecoveryPolicy, recoveryCommitment } from "./recovery.js";
 export type { RecoveryPolicy } from "./recovery.js";
 export { applyRecover } from "./transitions.js";
