@@ -1,10 +1,15 @@
 const ALPHABET = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
-const INDEX = new Map([...ALPHABET].map((character, index) => [character, index]));
+const INDEX = new Map<string, number>();
+
+for (let index = 0; index < ALPHABET.length; index += 1) {
+  INDEX.set(ALPHABET.charAt(index), index);
+}
 
 export function encodeBase58Btc(bytes: Uint8Array): string {
   if (bytes.length === 0) return "";
+
   let zeros = 0;
-  while (zeros < bytes.length && bytes[zeros] === 0) zeros += 1;
+  while (zeros < bytes.length && bytes.at(zeros) === 0) zeros += 1;
 
   let value = 0n;
   for (const byte of bytes) value = (value << 8n) | BigInt(byte);
@@ -15,6 +20,7 @@ export function encodeBase58Btc(bytes: Uint8Array): string {
     encoded = ALPHABET.charAt(remainder) + encoded;
     value /= 58n;
   }
+
   return "1".repeat(zeros) + encoded;
 }
 
@@ -23,8 +29,8 @@ export function decodeBase58Btc(value: string): Uint8Array {
   while (zeros < value.length && value.charAt(zeros) === "1") zeros += 1;
 
   let number = 0n;
-  for (const character of value) {
-    const digit = INDEX.get(character);
+  for (let index = 0; index < value.length; index += 1) {
+    const digit = INDEX.get(value.charAt(index));
     if (digit === undefined) throw new RangeError("INVALID_BASE58BTC_CHARACTER");
     number = number * 58n + BigInt(digit);
   }
@@ -35,9 +41,13 @@ export function decodeBase58Btc(value: string): Uint8Array {
     number >>= 8n;
   }
   body.reverse();
+
   return Uint8Array.from([...new Array<number>(zeros).fill(0), ...body]);
 }
 
 export function isBase58Btc(value: string): boolean {
-  return [...value].every((character) => INDEX.has(character));
+  for (let index = 0; index < value.length; index += 1) {
+    if (!INDEX.has(value.charAt(index))) return false;
+  }
+  return true;
 }
