@@ -44,3 +44,6 @@ export type { RecoverOperation } from "./operation.js";
 export { decodeRecoveryPolicy, encodeRecoveryPolicy, recoveryCommitment } from "./recovery.js";
 export type { RecoveryPolicy } from "./recovery.js";
 export { applyRecover } from "./transitions.js";
+export { verifyEd25519 } from "./crypto.js";
+export { decodeSignedOperation, encodeSignedOperation } from "./signed-operation.js";
+export type { SignatureProof, SignedOperation } from "./signed-operation.js";
