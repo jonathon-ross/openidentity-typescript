@@ -46,8 +46,7 @@ function verifyAuthority(
   let valid = 0;
   for (const [id, proof] of supplied) {
     const method = authorized.get(id);
-    if (method === undefined)
-      throw new OpenIdentityValidationError("UNAUTHORIZED_VERIFICATION_METHOD");
+    if (method === undefined) continue;
     if (!verifyMethod(method, input, proof.signature)) {
       throw new OpenIdentityValidationError("INVALID_SIGNATURE");
     }
