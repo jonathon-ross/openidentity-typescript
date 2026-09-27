@@ -8,6 +8,7 @@ import {
 
 interface CreateVector {
   id: string;
+  description: string;
   operationBytesHex: string;
   signingInputHex: string;
 }
@@ -24,7 +25,7 @@ const bundle = JSON.parse(
 ) as Bundle;
 
 describe("Protocol v0.1.1 CREATE operations", () => {
-  for (const vector of bundle.valid) {
+  for (const vector of bundle.valid.filter((candidate) => candidate.description.includes("CREATE"))) {
     it(vector.id + " decodes and re-encodes OperationBytes byte-for-byte", () => {
       const expected = Uint8Array.from(Buffer.from(vector.operationBytesHex, "hex"));
       const operation = decodeCreateOperation(expected);
