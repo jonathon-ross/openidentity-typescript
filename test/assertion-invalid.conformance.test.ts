@@ -59,8 +59,6 @@ describe("remaining frozen assertion-authority invalid vectors", () => {
     const invalid = decodeIdentityState(
       Uint8Array.from(Buffer.from(downgrade.invalidResultingIdentityStateHex, "hex")),
     );
-    expect(() => validateStateVersionTransition(current, invalid)).toThrow(
-      downgrade.expectedError,
-    );
+    expect(() => validateStateVersionTransition(current, invalid)).toThrow(downgrade.expectedError);
   });
 });
