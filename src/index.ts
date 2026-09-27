@@ -12,3 +12,9 @@ export type {
   IdentityStateV2,
   VerificationMethod,
 } from "./model.js";
+export {
+  decodeCreateOperation,
+  encodeCreateOperation,
+  encodeOperationSigningInput,
+} from "./operation.js";
+export type { CreateOperation } from "./operation.js";
