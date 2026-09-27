@@ -18,3 +18,11 @@ export {
   encodeOperationSigningInput,
 } from "./operation.js";
 export type { CreateOperation } from "./operation.js";
+export {
+  decodeOperation,
+  decodeRotateControllerOperation,
+  encodeControllerProofSigningInput,
+  encodeOperation,
+  encodeRotateControllerOperation,
+} from "./operation.js";
+export type { OpenIdentityOperation, RotateControllerOperation } from "./operation.js";
