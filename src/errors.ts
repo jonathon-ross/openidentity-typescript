@@ -29,3 +29,19 @@ export class OpenIdentityValidationError extends Error {
     this.name = "OpenIdentityValidationError";
   }
 }
+
+export function validationCode(error: unknown): string | undefined {
+  if (error instanceof OpenIdentityValidationError) return error.code;
+  if (error instanceof Error) {
+    const known = new Set([
+      "INVALID_SEQUENCE",
+      "INVALID_PREVIOUS_STATE_HASH",
+      "INVALID_RECOVERY_THRESHOLD",
+      "RECOVERY_NOT_CONFIGURED",
+      "INVALID_RECOVERY_POLICY",
+      "INVALID_RECOVERY_COMMITMENT",
+    ]);
+    if (known.has(error.message)) return error.message;
+  }
+  return undefined;
+}
