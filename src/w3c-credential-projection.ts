@@ -2,6 +2,8 @@ import { encodeBase58Btc } from "./base58btc.js";
 import { decodeSecuredCredential, encodeSecuredCredential } from "./credential.js";
 import type { ClaimValue, SecuredCredential } from "./credential.js";
 import type { IdentityState } from "./model.js";
+import { encodeIdentityState } from "./state-codec.js";
+import { StateHash } from "./state-hash.js";
 import { verifyCredentialAgainstHistoricalState } from "./credential-verifier.js";
 
 const BASIC = "https://openidentity.foundation/test/credentials/basic/v1";
@@ -118,10 +120,21 @@ export function validateW3cCredentialProjection(
     secured = decodeSecuredCredential(
       Uint8Array.from(Buffer.from(projected.openIdentitySecuredCredential.slice(1), "base64url")),
     );
+  } catch {
+    throw new ProjectionException("INVALID_NATIVE_SECURED_CREDENTIAL");
+  }
+
+  const suppliedHistoricalHash = StateHash.fromStateBytes(encodeIdentityState(historical));
+  if (!suppliedHistoricalHash.equals(secured.credential.issuanceStateHash)) {
+    throw new ProjectionException("HISTORICAL_ASSERTION_AUTHORITY_REQUIRED");
+  }
+
+  try {
     verifyCredentialAgainstHistoricalState(secured, historical);
   } catch {
     throw new ProjectionException("INVALID_NATIVE_SECURED_CREDENTIAL");
   }
+
   const expected = projectW3cCredential(secured);
   if (projected.id !== expected.id)
     throw new ProjectionException("INVALID_PROJECTED_CREDENTIAL_ID");
