@@ -6,7 +6,12 @@ import { VerificationMethodId } from "./verification-method-id.js";
 import type { AuthorityPolicy } from "./model.js";
 import type { RecoveryPolicy } from "./recovery.js";
 import { decodeRecoveryPolicy, encodeRecoveryPolicy } from "./recovery.js";
-import { decodeAuthorityPolicy, encodeAuthorityPolicy } from "./state-codec.js";
+import {
+  decodeAssertionPolicy,
+  decodeControllerPolicy,
+  encodeAuthorityPolicy,
+} from "./state-codec.js";
+import { OpenIdentityValidationError } from "./errors.js";
 
 export interface RotateControllerOperation {
   readonly protocolVersion: 1;
@@ -105,7 +110,7 @@ export function decodeCreateOperation(operationBytes: Uint8Array): CreateOperati
     identity: new IdentityId(bytes(operation.get(3n))),
     sequence: 1n as const,
     previousStateHash: null,
-    controllerPolicy: decodeAuthorityPolicy(payload.get(1n) ?? null),
+    controllerPolicy: decodeControllerPolicy(payload.get(1n) ?? null),
   };
   return payload.has(2n) ? { ...base, recoveryCommitment: bytes(payload.get(2n)) } : base;
 }
@@ -152,7 +157,7 @@ export function decodeRotateControllerOperation(
     identity: new IdentityId(bytes(operation.get(3n))),
     sequence,
     previousStateHash: new StateHash(bytes(operation.get(5n))),
-    controllerPolicy: decodeAuthorityPolicy(payload.get(1n) ?? null),
+    controllerPolicy: decodeControllerPolicy(payload.get(1n) ?? null),
   };
 }
 
@@ -181,7 +186,7 @@ export function decodeOperation(operationBytes: Uint8Array): OpenIdentityOperati
   if (type === 3n) return decodeRecoverOperation(operationBytes);
   if (type === 4n) return decodeDeactivateOperation(operationBytes);
   if (type === 5n) return decodeSetAssertionPolicyOperation(operationBytes);
-  throw new RangeError("Unsupported operation type");
+  throw new OpenIdentityValidationError("UNSUPPORTED_OPERATION");
 }
 
 export function encodeOperation(operation: OpenIdentityOperation): Uint8Array {
@@ -230,7 +235,7 @@ export function decodeSetAssertionPolicyOperation(
     identity: new IdentityId(bytes(operation.get(3n))),
     sequence,
     previousStateHash: new StateHash(bytes(operation.get(5n))),
-    assertionPolicy: policyValue === null ? null : decodeAuthorityPolicy(policyValue ?? null),
+    assertionPolicy: policyValue === null ? null : decodeAssertionPolicy(policyValue ?? null),
   };
 }
 
@@ -299,7 +304,7 @@ export function decodeRecoverOperation(operationBytes: Uint8Array): RecoverOpera
     identity: new IdentityId(bytes(operation.get(3n))),
     sequence,
     previousStateHash: new StateHash(bytes(operation.get(5n))),
-    controllerPolicy: decodeAuthorityPolicy(payload.get(1n) ?? null),
+    controllerPolicy: decodeControllerPolicy(payload.get(1n) ?? null),
     currentRecoveryPolicy: decodeRecoveryPolicy(payload.get(2n) ?? null),
     newRecoveryCommitment: new StateHash(bytes(payload.get(3n))),
   };
