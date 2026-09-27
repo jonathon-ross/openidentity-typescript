@@ -42,5 +42,36 @@ jobs:
       - name: Inspect package contents
         run: npm pack --dry-run
 
+      - name: Check whether version already exists
+        id: registry
+        shell: bash
+        run: |
+          PACKAGE_VERSION=$(node -p "require('./package.json').version")
+          set +e
+          OUTPUT=$(npm view "@openidentity/sdk@$PACKAGE_VERSION" version --registry=https://registry.npmjs.org/ 2>&1)
+          STATUS=$?
+          set -e
+
+          if [ "$STATUS" -eq 0 ]; then
+            if [ "$OUTPUT" != "$PACKAGE_VERSION" ]; then
+              echo "Registry returned unexpected version: $OUTPUT"
+              exit 1
+            fi
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+            echo "@openidentity/sdk@$PACKAGE_VERSION already exists; publish will be skipped."
+          elif printf '%s' "$OUTPUT" | grep -q "E404"; then
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+            echo "@openidentity/sdk@$PACKAGE_VERSION is not published yet."
+          else
+            echo "$OUTPUT"
+            echo "Unable to determine npm registry state safely."
+            exit "$STATUS"
+          fi
+
       - name: Publish to npm
+        if: steps.registry.outputs.exists == 'false'
         run: npm publish --access public
+
+      - name: Confirm existing npm version
+        if: steps.registry.outputs.exists == 'true'
+        run: echo "Skipping npm publish because this immutable version already exists."
