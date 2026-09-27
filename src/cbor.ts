@@ -64,16 +64,23 @@ export function encodeDeterministic(value: CborValue): Uint8Array {
     return concat([head(3, BigInt(bytes.length)), bytes]);
   }
   if (Array.isArray(value)) {
-    return concat([head(4, BigInt(value.length)), ...value.map(encodeDeterministic)]);
+    const items: readonly CborValue[] = value;
+    return concat([head(4, BigInt(items.length)), ...items.map(encodeDeterministic)]);
   }
   if (value instanceof Map) {
-    const entries = [...value.entries()].map(([key, item]) => {
+    const map: ReadonlyMap<CborValue, CborValue> = value;
+    const entries = [...map.entries()].map(([key, item]) => {
       const encodedKey = encodeDeterministic(key);
       return { encodedKey, encodedValue: encodeDeterministic(item) };
     });
     entries.sort((a, b) => compareKeys(a.encodedKey, b.encodedKey));
     for (let index = 1; index < entries.length; index += 1) {
-      if (compareKeys(entries[index - 1]!.encodedKey, entries[index]!.encodedKey) === 0) {
+      const previous = entries.at(index - 1);
+      const current = entries.at(index);
+      if (previous === undefined || current === undefined) {
+        throw new Error("Unexpected CBOR map-entry bounds");
+      }
+      if (compareKeys(previous.encodedKey, current.encodedKey) === 0) {
         throw new RangeError("Duplicate CBOR map key");
       }
     }
