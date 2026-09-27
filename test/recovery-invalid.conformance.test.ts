@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import { decodeIdentityState } from "../src/state-codec.js";
 import { decodeOperation } from "../src/operation.js";
 import { applyRecover } from "../src/transitions.js";
+import { validationCode } from "../src/errors.js";
 
 interface Vector {
   id: string;
@@ -27,13 +28,18 @@ describe("remaining frozen recovery invalid vectors", () => {
       const current = decodeIdentityState(
         Uint8Array.from(Buffer.from(vector.previousIdentityStateHex, "hex")),
       );
-      expect(() => {
+      try {
         const operation = decodeOperation(
           Uint8Array.from(Buffer.from(vector.operationBytesHex, "hex")),
         );
         if (operation.operationType !== 3) throw new Error("Expected RECOVER");
         applyRecover(current, operation);
-      }).toThrow();
+        throw new Error("Expected " + vector.expectedError);
+      } catch (error) {
+        expect(validationCode(error) ?? (error instanceof Error ? error.message : undefined)).toBe(
+          vector.expectedError,
+        );
+      }
     });
   }
 });
