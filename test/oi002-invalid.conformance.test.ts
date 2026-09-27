@@ -38,11 +38,11 @@ describe("frozen OI-002 invalid vectors", () => {
   )) {
     it(vector.id + " rejects CREATE authorization", () => {
       if (vector.signedOperationHex === undefined) throw new Error("Missing SignedOperation");
-      expect(() =>
+      expect(() => {
         verifyCreateSignedOperation(
           decodeSignedOperation(Uint8Array.from(Buffer.from(vector.signedOperationHex, "hex"))),
-        ),
-      ).toThrow();
+        );
+      }).toThrow();
     });
   }
 });
