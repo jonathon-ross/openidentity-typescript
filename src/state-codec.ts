@@ -102,7 +102,8 @@ function decodeMethods(value: CborValue): readonly VerificationMethod[] {
   for (let index = 1; index < methods.length; index += 1) {
     const previous = methods.at(index - 1);
     const current = methods.at(index);
-    if (previous === undefined || current === undefined) throw new Error("Unexpected method bounds");
+    if (previous === undefined || current === undefined)
+      throw new Error("Unexpected method bounds");
     if (compareBytes(previous.id.bytes(), current.id.bytes()) >= 0) {
       throw new RangeError("Verification methods are not canonically ordered");
     }
@@ -142,7 +143,8 @@ function encodePolicy(policy: AuthorityPolicy): ReadonlyMap<CborValue, CborValue
   for (let index = 1; index < methods.length; index += 1) {
     const previous = methods.at(index - 1);
     const current = methods.at(index);
-    if (previous === undefined || current === undefined) throw new Error("Unexpected method bounds");
+    if (previous === undefined || current === undefined)
+      throw new Error("Unexpected method bounds");
     if (compareBytes(previous.id.bytes(), current.id.bytes()) === 0) {
       throw new RangeError("Duplicate verification method ID");
     }
@@ -166,7 +168,8 @@ export function decodeIdentityState(stateBytes: Uint8Array): IdentityState {
   const version = integer(state.get(1n));
   const allowed = version === 1n ? [1n, 2n, 3n, 4n, 5n, 6n] : [1n, 2n, 3n, 4n, 5n, 6n, 7n];
   for (const key of state.keys()) {
-    if (typeof key !== "bigint" || !allowed.includes(key)) throw new RangeError("Unknown IdentityState field");
+    if (typeof key !== "bigint" || !allowed.includes(key))
+      throw new RangeError("Unknown IdentityState field");
   }
   for (const required of [1n, 2n, 3n, 4n, 5n]) {
     if (!state.has(required)) throw new RangeError("Missing IdentityState field");
