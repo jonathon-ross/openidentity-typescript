@@ -100,3 +100,12 @@ export function applyRecover(current: IdentityState, operation: RecoverOperation
     ...(current.assertionPolicy === undefined ? {} : { assertionPolicy: current.assertionPolicy }),
   };
 }
+
+export function validateStateVersionTransition(
+  previous: IdentityState,
+  resulting: IdentityState,
+): void {
+  if (previous.stateVersion === 2 && resulting.stateVersion === 1) {
+    throw new RangeError("STATE_VERSION_DOWNGRADE");
+  }
+}
