@@ -9,7 +9,7 @@ const directory = resolve(root, "protocol", "v0.1.1");
 const resources = [
   {
     resource: "identity-id-v0.1.json",
-    publishedSha256: "d417d4c68233df46535fabeaebb6f31af8d34e62b2c3b587d24c11bed56378f4",
+    publishedSha256: "625a795a02f2ffed3fb88c8187937a68f0b97ef5cfe61f76c632f1ef5a2abd92",
   },
   {
     resource: "state-hash-v0.1.json",
