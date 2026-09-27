@@ -10,6 +10,7 @@ import {
   type VerificationMethod,
 } from "./model.js";
 import { VerificationMethodId } from "./verification-method-id.js";
+import { OpenIdentityValidationError } from "./errors.js";
 
 function map(value: CborValue): ReadonlyMap<CborValue, CborValue> {
   if (!(value instanceof Map)) throw new RangeError("Expected CBOR map");
@@ -111,7 +112,7 @@ export function decodeVerificationMethods(value: CborValue): readonly Verificati
   return methods;
 }
 
-export function decodeAuthorityPolicy(value: CborValue): AuthorityPolicy {
+function decodeAuthorityPolicyRaw(value: CborValue): AuthorityPolicy {
   const policy = map(value);
   const type = integer(policy.get(1n));
   if (type === 1n) {
@@ -179,7 +180,7 @@ export function decodeIdentityState(stateBytes: Uint8Array): IdentityState {
     identity: new IdentityId(bytes(state.get(2n))),
     sequence: integer(state.get(3n)),
     status: integer(state.get(4n)),
-    controllerPolicy: decodeAuthorityPolicy(state.get(5n) ?? null),
+    controllerPolicy: decodeControllerPolicy(state.get(5n) ?? null),
   };
   const recoveryCommitment = state.has(6n) ? bytes(state.get(6n)) : undefined;
 
@@ -190,7 +191,7 @@ export function decodeIdentityState(stateBytes: Uint8Array): IdentityState {
   }
   if (version === 2n) {
     const assertionPolicy = state.has(7n)
-      ? decodeAuthorityPolicy(state.get(7n) ?? null)
+      ? decodeAssertionPolicy(state.get(7n) ?? null)
       : undefined;
     return {
       stateVersion: 2,
@@ -216,3 +217,39 @@ export function encodeIdentityState(state: IdentityState): Uint8Array {
   }
   return encodeDeterministic(fields);
 }
+
+export function decodeControllerPolicy(value: CborValue): AuthorityPolicy {
+  try {
+    return decodeAuthorityPolicyRaw(value);
+  } catch (error) {
+    if (error instanceof RangeError && /threshold/u.test(error.message)) {
+      throw new OpenIdentityValidationError("INVALID_CONTROLLER_THRESHOLD");
+    }
+    if (error instanceof RangeError && /canonically ordered/u.test(error.message)) {
+      throw new OpenIdentityValidationError("DUPLICATE_VERIFICATION_METHOD");
+    }
+    if (error instanceof RangeError && /Unsupported OpenIdentity/u.test(error.message)) {
+      throw new OpenIdentityValidationError("UNSUPPORTED_ALGORITHM");
+    }
+    throw error;
+  }
+}
+
+export function decodeAssertionPolicy(value: CborValue): AuthorityPolicy {
+  try {
+    return decodeAuthorityPolicyRaw(value);
+  } catch (error) {
+    if (error instanceof RangeError && /threshold/u.test(error.message)) {
+      throw new OpenIdentityValidationError("INVALID_ASSERTION_THRESHOLD");
+    }
+    if (error instanceof RangeError && /canonically ordered/u.test(error.message)) {
+      throw new OpenIdentityValidationError("DUPLICATE_VERIFICATION_METHOD");
+    }
+    if (error instanceof RangeError && /Unsupported OpenIdentity/u.test(error.message)) {
+      throw new OpenIdentityValidationError("UNSUPPORTED_ALGORITHM");
+    }
+    throw error;
+  }
+}
+
+export const decodeAuthorityPolicy = decodeControllerPolicy;
