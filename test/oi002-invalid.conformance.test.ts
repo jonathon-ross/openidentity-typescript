@@ -39,16 +39,13 @@ describe("frozen OI-002 invalid vectors", () => {
     });
   }
 
-
   const supersededRecover = bundle.invalid.find((vector) => vector.id === "I20");
   if (supersededRecover === undefined) throw new Error("Missing historical I20 vector");
 
   it("I20 is superseded by OI-007 RECOVER assignment", () => {
     expect(supersededRecover.expectedError).toBe("UNSUPPORTED_OPERATION");
     expect(() => {
-      decodeOperation(
-        Uint8Array.from(Buffer.from(supersededRecover.operationBytesHex, "hex")),
-      );
+      decodeOperation(Uint8Array.from(Buffer.from(supersededRecover.operationBytesHex, "hex")));
     }).toThrow("Unexpected CBOR map fields");
   });
 
