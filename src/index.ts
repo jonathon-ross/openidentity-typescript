@@ -55,3 +55,21 @@ export { verifyStatefulSignedOperation } from "./verifier.js";
 export { verifyCreateSignedOperation } from "./verifier.js";
 export { validationCode } from "./errors.js";
 export { validateStateVersionTransition } from "./transitions.js";
+export {
+  decodeCredential,
+  decodeSecuredCredential,
+  encodeCredential,
+  encodeCredentialSigningInput,
+  encodeSecuredCredential,
+} from "./credential.js";
+export type {
+  ClaimValue,
+  CredentialProof,
+  OpenIdentityCredential,
+  SecuredCredential,
+} from "./credential.js";
+export {
+  CredentialVerificationException,
+  verifyCredentialAgainstHistoricalState,
+} from "./credential-verifier.js";
+export type { CredentialVerificationError } from "./credential-verifier.js";
