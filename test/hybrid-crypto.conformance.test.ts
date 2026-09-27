@@ -30,7 +30,8 @@ const bundle = JSON.parse(
 
 const v02 = bundle.valid.find((vector) => vector.id === "V02");
 const v04 = bundle.valid.find((vector) => vector.id === "V04");
-if (v02 === undefined || v04 === undefined) throw new Error("Missing frozen hybrid vectors V02/V04");
+if (v02 === undefined || v04 === undefined)
+  throw new Error("Missing frozen hybrid vectors V02/V04");
 
 describe("Protocol v0.1.1 hybrid cryptographic verification", () => {
   it("V02 verifies the frozen ML-DSA-65 CREATE authorization signature", () => {
@@ -51,7 +52,9 @@ describe("Protocol v0.1.1 hybrid cryptographic verification", () => {
     const operationBytes = Uint8Array.from(Buffer.from(v02.operationBytesHex, "hex"));
     const operation = decodeOperation(operationBytes);
     if (operation.operationType !== 1) throw new Error("V02 must be CREATE");
-    const signed = decodeSignedOperation(Uint8Array.from(Buffer.from(v02.signedOperationHex, "hex")));
+    const signed = decodeSignedOperation(
+      Uint8Array.from(Buffer.from(v02.signedOperationHex, "hex")),
+    );
     expect(
       verifyAuthorityPolicy(
         operation.controllerPolicy,
