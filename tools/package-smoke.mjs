@@ -5,11 +5,18 @@ import { join, resolve } from "node:path";
 
 const root = resolve(".");
 const work = mkdtempSync(join(tmpdir(), "openidentity-sdk-smoke-"));
-const npm = process.platform === "win32" ? "npm.cmd" : "npm";
+const npmCli = process.env.npm_execpath;
+if (npmCli === undefined || npmCli.length === 0) {
+  throw new Error("package:smoke must be run through npm so npm_execpath is available");
+}
 let tarball;
 
+function npm(args, options = {}) {
+  return execFileSync(process.execPath, [npmCli, ...args], options);
+}
+
 try {
-  const packJson = execFileSync(npm, ["pack", "--json", "--ignore-scripts"], {
+  const packJson = npm(["pack", "--json", "--ignore-scripts"], {
     cwd: root,
     encoding: "utf8",
   });
@@ -22,7 +29,7 @@ try {
     join(work, "package.json"),
     JSON.stringify({ type: "module", private: true }, null, 2) + "\n",
   );
-  execFileSync(npm, ["install", "--ignore-scripts", tarball], {
+  npm(["install", "--ignore-scripts", tarball], {
     cwd: work,
     stdio: "inherit",
   });
