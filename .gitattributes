@@ -1,0 +1,14 @@
+# Canonical repository text uses LF on every platform.
+# This keeps formatting, checksums, generated fixtures, and CI deterministic.
+* text=auto eol=lf
+
+# Binary artifacts must never undergo line-ending conversion.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.webp binary
+*.ico binary
+*.pdf binary
+*.zip binary
+*.tgz binary
