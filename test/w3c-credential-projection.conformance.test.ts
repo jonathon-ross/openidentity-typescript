@@ -21,9 +21,18 @@ interface InvalidVector {
   w3cCredential: W3cCredentialProjection;
   substitutedCurrentIdentityStateHex?: string;
 }
-interface ProjectionBundle { validVectors: ValidVector[]; invalidVectors: InvalidVector[]; }
-interface CredentialVector { id: string; securedCredentialHex: string; historicalIdentityStateHex: string; }
-interface CredentialBundle { validVectors: CredentialVector[]; }
+interface ProjectionBundle {
+  validVectors: ValidVector[];
+  invalidVectors: InvalidVector[];
+}
+interface CredentialVector {
+  id: string;
+  securedCredentialHex: string;
+  historicalIdentityStateHex: string;
+}
+interface CredentialBundle {
+  validVectors: CredentialVector[];
+}
 
 const projections = JSON.parse(
   readFileSync(

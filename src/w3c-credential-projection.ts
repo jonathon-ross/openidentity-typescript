@@ -10,7 +10,11 @@ const CONTEXTS = [
   "https://openidentity.foundation/ns/v2",
   BASIC + "/context",
 ] as const;
-const TYPES = ["VerifiableCredential", "OpenIdentityCredential", "OpenIdentityBasicCredential"] as const;
+const TYPES = [
+  "VerifiableCredential",
+  "OpenIdentityCredential",
+  "OpenIdentityBasicCredential",
+] as const;
 
 export interface W3cCredentialProjection {
   readonly "@context": readonly string[];
@@ -56,7 +60,8 @@ function time(seconds: bigint): string {
   return new Date(Number(millis)).toISOString().replace(".000Z", "Z");
 }
 function stringClaim(value: ClaimValue | undefined): string {
-  if (typeof value !== "string" || value.length === 0) throw new ProjectionException("INVALID_PROJECTED_CLAIMS");
+  if (typeof value !== "string" || value.length === 0)
+    throw new ProjectionException("INVALID_PROJECTED_CLAIMS");
   return value;
 }
 function booleanClaim(value: ClaimValue | undefined): boolean {
@@ -65,7 +70,8 @@ function booleanClaim(value: ClaimValue | undefined): boolean {
 }
 function basicSubject(secured: SecuredCredential): Readonly<Record<string, unknown>> {
   const credential = secured.credential;
-  if (credential.credentialProfile !== BASIC) throw new ProjectionException("UNSUPPORTED_CREDENTIAL_PROFILE");
+  if (credential.credentialProfile !== BASIC)
+    throw new ProjectionException("UNSUPPORTED_CREDENTIAL_PROFILE");
   if (credential.claims.size !== 3) throw new ProjectionException("INVALID_PROJECTED_CLAIMS");
   const subjectId = "urn:openidentity:test-subject:u" + b64(credential.credentialSubject);
   return {
@@ -102,7 +108,8 @@ export function validateW3cCredentialProjection(
   historical: IdentityState,
 ): void {
   if (projected.proof !== undefined) throw new ProjectionException("MISLEADING_W3C_PROOF");
-  if (!equalJson(projected["@context"], CONTEXTS)) throw new ProjectionException("UNSUPPORTED_PROJECTION_CONTEXT");
+  if (!equalJson(projected["@context"], CONTEXTS))
+    throw new ProjectionException("UNSUPPORTED_PROJECTION_CONTEXT");
   if (!projected.openIdentitySecuredCredential.startsWith("u")) {
     throw new ProjectionException("INVALID_NATIVE_SECURED_CREDENTIAL");
   }
@@ -115,15 +122,20 @@ export function validateW3cCredentialProjection(
   } catch {
     throw new ProjectionException("INVALID_NATIVE_SECURED_CREDENTIAL");
   }
-  if (!secured.credential.issuanceStateHash.equals(
-    historical.stateVersion === 1 || historical.stateVersion === 2
-      ? secured.credential.issuanceStateHash
-      : secured.credential.issuanceStateHash,
-  )) throw new ProjectionException("HISTORICAL_ASSERTION_AUTHORITY_REQUIRED");
+  if (
+    !secured.credential.issuanceStateHash.equals(
+      historical.stateVersion === 1 || historical.stateVersion === 2
+        ? secured.credential.issuanceStateHash
+        : secured.credential.issuanceStateHash,
+    )
+  )
+    throw new ProjectionException("HISTORICAL_ASSERTION_AUTHORITY_REQUIRED");
 
   const expected = projectW3cCredential(secured);
-  if (projected.id !== expected.id) throw new ProjectionException("INVALID_PROJECTED_CREDENTIAL_ID");
-  if (projected.issuer !== expected.issuer) throw new ProjectionException("INVALID_PROJECTED_ISSUER");
+  if (projected.id !== expected.id)
+    throw new ProjectionException("INVALID_PROJECTED_CREDENTIAL_ID");
+  if (projected.issuer !== expected.issuer)
+    throw new ProjectionException("INVALID_PROJECTED_ISSUER");
   if (projected.validFrom !== expected.validFrom || projected.validUntil !== expected.validUntil) {
     throw new ProjectionException("INVALID_PROJECTED_VALIDITY");
   }
@@ -135,7 +147,10 @@ export function validateW3cCredentialProjection(
   }
   const actualSubject = projected.credentialSubject;
   const expectedSubject = expected.credentialSubject;
-  if (actualSubject.id !== expectedSubject.id) throw new ProjectionException("INVALID_PROJECTED_SUBJECT");
-  if (!equalJson(actualSubject, expectedSubject)) throw new ProjectionException("INVALID_PROJECTED_CLAIMS");
-  if (!equalJson(projected.type, expected.type)) throw new ProjectionException("INVALID_PROJECTED_CLAIMS");
+  if (actualSubject.id !== expectedSubject.id)
+    throw new ProjectionException("INVALID_PROJECTED_SUBJECT");
+  if (!equalJson(actualSubject, expectedSubject))
+    throw new ProjectionException("INVALID_PROJECTED_CLAIMS");
+  if (!equalJson(projected.type, expected.type))
+    throw new ProjectionException("INVALID_PROJECTED_CLAIMS");
 }

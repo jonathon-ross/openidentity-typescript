@@ -78,7 +78,4 @@ export {
   projectW3cCredential,
   validateW3cCredentialProjection,
 } from "./w3c-credential-projection.js";
-export type {
-  ProjectionErrorCode,
-  W3cCredentialProjection,
-} from "./w3c-credential-projection.js";
+export type { ProjectionErrorCode, W3cCredentialProjection } from "./w3c-credential-projection.js";
