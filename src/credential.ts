@@ -93,9 +93,12 @@ function claims(value: CborValue): ReadonlyMap<string, ClaimValue> {
 }
 function encodeClaim(value: ClaimValue): CborValue {
   if (value instanceof Map) {
-    return new Map<CborValue, CborValue>(
-      [...value.entries()].map(([key, item]) => [key, encodeClaim(item)]),
-    );
+    const entries: ReadonlyMap<string, ClaimValue> = value;
+    const encoded = new Map<CborValue, CborValue>();
+    for (const [key, item] of entries) {
+      encoded.set(key, encodeClaim(item));
+    }
+    return encoded;
   }
   if (Array.isArray(value)) {
     const items: readonly ClaimValue[] = value;
