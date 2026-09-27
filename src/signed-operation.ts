@@ -56,14 +56,6 @@ function decodeProof(value: CborValue): SignatureProof {
 function decodeProofs(value: CborValue): readonly SignatureProof[] {
   const proofs = array(value).map(decodeProof);
   if (proofs.length === 0) throw new RangeError("Proof collection must not be empty");
-  for (let index = 1; index < proofs.length; index += 1) {
-    const previous = proofs.at(index - 1);
-    const current = proofs.at(index);
-    if (previous === undefined || current === undefined) throw new Error("Unexpected proof bounds");
-    if (compare(previous.methodId.bytes(), current.methodId.bytes()) >= 0) {
-      throw new RangeError("Proofs are not canonically ordered or contain duplicate IDs");
-    }
-  }
   return proofs;
 }
 
