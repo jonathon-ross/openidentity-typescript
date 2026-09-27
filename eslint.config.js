@@ -3,9 +3,13 @@ import tseslint from "typescript-eslint";
 
 export default tseslint.config(
   { ignores: ["dist/**", "protocol/**"] },
-  js.configs.recommended,
-  ...tseslint.configs.strictTypeChecked,
   {
+    files: ["**/*.js"],
+    ...js.configs.recommended,
+  },
+  {
+    files: ["src/**/*.ts", "test/**/*.ts"],
+    extends: [js.configs.recommended, ...tseslint.configs.strictTypeChecked],
     languageOptions: {
       parserOptions: {
         projectService: true,
