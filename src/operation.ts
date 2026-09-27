@@ -33,7 +33,10 @@ export interface SetAssertionPolicyOperation {
 }
 
 export type OpenIdentityOperation =
-  CreateOperation | RotateControllerOperation | SetAssertionPolicyOperation;
+  | CreateOperation
+  | RotateControllerOperation
+  | DeactivateOperation
+  | SetAssertionPolicyOperation;
 
 export interface CreateOperation {
   readonly protocolVersion: 1;
@@ -167,10 +170,16 @@ export function decodeOperation(operationBytes: Uint8Array): OpenIdentityOperati
 }
 
 export function encodeOperation(operation: OpenIdentityOperation): Uint8Array {
-  if (operation.operationType === 1) return encodeCreateOperation(operation);
-  if (operation.operationType === 2) return encodeRotateControllerOperation(operation);
-  if (operation.operationType === 4) return encodeDeactivateOperation(operation);
-  return encodeSetAssertionPolicyOperation(operation);
+  switch (operation.operationType) {
+    case 1:
+      return encodeCreateOperation(operation);
+    case 2:
+      return encodeRotateControllerOperation(operation);
+    case 4:
+      return encodeDeactivateOperation(operation);
+    case 5:
+      return encodeSetAssertionPolicyOperation(operation);
+  }
 }
 
 export function encodeControllerProofSigningInput(
